@@ -22,6 +22,10 @@ public class BookService {
         return bookRepository.findById(id).orElse(null);
     }
 
+    public List<Book> getBooksByCategory(String category) {
+        return bookRepository.findByCategoryIgnoreCase(category);
+    }
+
     public Book updateBook(Long id, Book updatedBook) {
         // First, check if the book exists
         Book existingBook = bookRepository.findById(id).orElse(null);

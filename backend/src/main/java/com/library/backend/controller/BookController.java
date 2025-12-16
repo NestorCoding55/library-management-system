@@ -10,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class BookController {
     private final BookService bookService;
 
@@ -25,11 +26,12 @@ public class BookController {
     public Book getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
     }
+    @GetMapping("/category")
+    public List<Book> getBooksByCategory(@RequestParam String category) {return bookService.getBooksByCategory(category);}
     @PutMapping("/{id}")
     public Book updateBook(@PathVariable Long id, @RequestBody Book updatedBook) {
         return bookService.updateBook(id, updatedBook);
     }
-
     @DeleteMapping("/{id}")
     public void deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
