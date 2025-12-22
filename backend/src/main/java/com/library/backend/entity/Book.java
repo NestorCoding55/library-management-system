@@ -31,4 +31,7 @@ public class Book {
 
     @Column(nullable = false)
     private boolean available;
+
+    @Column(length = 1000) // Allow up to 1000 characters
+    private String description;
 }

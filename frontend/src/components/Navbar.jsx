@@ -1,5 +1,5 @@
 import logo from '../assets/logo.png';
-
+import { Link } from 'react-router-dom';
 const Navbar = () => {
     return (
         <nav className="bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-800 text-white shadow-2xl">
@@ -28,22 +28,22 @@ const Navbar = () => {
 
                     {/* Center: Navigation Links */}
                     <div className="hidden md:flex items-center space-x-8">
-                        <a href="#" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
+                        <Link to="/" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
                             Home
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-full transition-all duration-300"></span>
-                        </a>
-                        <a href="#" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
+                        </Link>
+                        <Link to="/books" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
                             Books
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-full transition-all duration-300"></span>
-                        </a>
-                        <a href="#" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
+                        </Link>
+                        <Link to="/categories" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
                             Categories
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-full transition-all duration-300"></span>
-                        </a>
-                        <a href="#" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
+                        </Link>
+                        <Link to="/about" className="relative px-3 py-2 text-blue-100 hover:text-white font-medium transition-colors duration-200 group">
                             About
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-full transition-all duration-300"></span>
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Right side: Buttons with enhanced design */}

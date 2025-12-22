@@ -43,6 +43,10 @@ public class BookService {
         return null; // Return null if book wasn't found
     }
 
+    public List<Book> searchBooks(String keyword) {
+        return bookRepository.findByTitleContainingIgnoreCase(keyword);
+    }
+
     public void deleteBook(Long id) {
         bookRepository.deleteById(id);
     }

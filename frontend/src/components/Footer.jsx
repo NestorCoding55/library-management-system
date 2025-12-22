@@ -1,5 +1,5 @@
 import Navbar from "./Navbar.jsx";
-
+import { Link } from 'react-router-dom';
 const Footer = () => {
     return (
         <footer className="bg-gray-900 text-white py-12">
@@ -21,10 +21,10 @@ const Footer = () => {
                     <div>
                         <h3 className="text-xl font-bold mb-4">Quick Links</h3>
                         <ul className="space-y-2">
-                            <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Home</a></li>
-                            <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Books</a></li>
-                            <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Categories</a></li>
-                            <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About</a></li>
+                            <li><Link to="/" className="text-gray-400 hover:text-white transition-colors">Home</Link></li>
+                            <li><Link to="/books" className="text-gray-400 hover:text-white transition-colors">Books</Link></li>
+                            <li><Link to="/categories" className="text-gray-400 hover:text-white transition-colors">Categories</Link></li>
+                            <li><Link to="/about" className="text-gray-400 hover:text-white transition-colors">About</Link></li>
 
                         </ul>
 
