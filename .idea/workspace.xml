@@ -4,24 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="Adding the footer">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="Day 3 done">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/BookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/BookController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/Book.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/Book.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/repository/BookRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/repository/BookRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/service/BookService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/service/BookService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/BookController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/BookController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/entity/Book.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/entity/Book.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/repository/BookRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/repository/BookRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/service/BookService.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/service/BookService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/BookList.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +24,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -81,6 +72,9 @@
     &quot;accountId&quot;: &quot;b8db886b-f2be-40d4-be68-0b1df510f2f5&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/backend/pom.xml" root0="SKIP_HIGHLIGHTING" />
+  </component>
   <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="$PROJECT_DIR$/../../../../xampp/php/php.exe" />
   <component name="ProjectColorInfo">{
@@ -94,32 +88,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.BackendApplication.executor": "Run",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/nesto/projects/library-project-root/frontend/src/assets",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.BackendApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/nesto/projects/library-project-root/frontend/src/assets&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\nesto\projects\library-project-root\frontend\src\assets" />
@@ -151,7 +145,9 @@
       <updated>1765856752067</updated>
       <workItem from="1765911070706" duration="6006000" />
       <workItem from="1766167077011" duration="5723000" />
-      <workItem from="1766424400222" duration="9171000" />
+      <workItem from="1766424400222" duration="10644000" />
+      <workItem from="1766614981200" duration="5545000" />
+      <workItem from="1766627449995" duration="2979000" />
     </task>
     <task id="LOCAL-00001" summary="setting up backend and frontend">
       <option name="closed" value="true" />
@@ -193,7 +189,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766178247005</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Day 3 done">
+      <option name="closed" value="true" />
+      <created>1766442446740</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1766442446740</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,6 +212,7 @@
     <MESSAGE value="backend done for now, working on frontend" />
     <MESSAGE value="new files" />
     <MESSAGE value="Adding the footer" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding the footer" />
+    <MESSAGE value="Day 3 done" />
+    <option name="LAST_COMMIT_MESSAGE" value="Day 3 done" />
   </component>
 </project>

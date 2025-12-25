@@ -6,6 +6,7 @@ import Books from "./pages/Books";
 import About from "./pages/About";
 import Categories from "./pages/Categories";
 import BookDetails from "./pages/BookDetails";
+import Register from "./pages/Register";
 
 function App() {
     return (
@@ -25,6 +26,8 @@ function App() {
 
                     {/* When URL is "/about", show About */}
                     <Route path="/about" element={<About />} />
+
+                    <Route path="/register" element={<Register />} />
 
 
                 </Routes>
