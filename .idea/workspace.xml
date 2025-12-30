@@ -4,13 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="Day 3 done">
+    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="Day 4 done, working on backend register functionality">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/config/SecurityConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/AuthController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Home.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Home.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Register.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Register.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +151,13 @@
       <workItem from="1766167077011" duration="5723000" />
       <workItem from="1766424400222" duration="10644000" />
       <workItem from="1766614981200" duration="5545000" />
-      <workItem from="1766627449995" duration="2979000" />
+      <workItem from="1766627449995" duration="3579000" />
+      <workItem from="1766672494107" duration="14000" />
+      <workItem from="1766957519343" duration="1376000" />
+      <workItem from="1766964904028" duration="551000" />
+      <workItem from="1766971021215" duration="198000" />
+      <workItem from="1767042116875" duration="12684000" />
+      <workItem from="1767106729363" duration="2694000" />
     </task>
     <task id="LOCAL-00001" summary="setting up backend and frontend">
       <option name="closed" value="true" />
@@ -197,7 +207,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766442446740</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Day 4 done, working on backend register functionality">
+      <option name="closed" value="true" />
+      <created>1766630829584</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1766630829584</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,6 +231,7 @@
     <MESSAGE value="new files" />
     <MESSAGE value="Adding the footer" />
     <MESSAGE value="Day 3 done" />
-    <option name="LAST_COMMIT_MESSAGE" value="Day 3 done" />
+    <MESSAGE value="Day 4 done, working on backend register functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="Day 4 done, working on backend register functionality" />
   </component>
 </project>

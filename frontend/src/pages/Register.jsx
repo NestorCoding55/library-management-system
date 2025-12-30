@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import authService from "../services/authService"; // Make sure this path is correct
+import authService from "../services/authService";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const Register = () => {
@@ -7,18 +7,32 @@ const Register = () => {
         username: "",
         email: "",
         password: "",
+        confirmPassword: ""
     });
 
-    // --- NEW: Password Strength State ---
+    // Password visibility states
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // Password Strength State
     const [passwordChecks, setPasswordChecks] = useState({
         length: false,
         nums: false,
         letters: false,
         special: false
     });
-    const [strengthScore, setStrengthScore] = useState(0); // 0 to 100
+    const [strengthScore, setStrengthScore] = useState(0);
 
+    // Password match state
+    const [passwordsMatch, setPasswordsMatch] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [serverError, setServerError] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({
+        username: "",
+        email: "",
+        password: ""
+    });
+
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -27,7 +41,7 @@ const Register = () => {
         window.scrollTo(0, 0);
     }, [location]);
 
-    // --- NEW: Monitor Password Changes for Strength ---
+    // Monitor Password Changes for Strength
     useEffect(() => {
         const p = formData.password;
         const checks = {
@@ -42,16 +56,39 @@ const Register = () => {
         const validCount = Object.values(checks).filter(Boolean).length;
         setStrengthScore((validCount / 4) * 100);
 
-    }, [formData.password]);
+        // Check if passwords match
+        setPasswordsMatch(p === formData.confirmPassword);
+
+    }, [formData.password, formData.confirmPassword]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+
+        // Clear field-specific error when user starts typing
+        if (fieldErrors[name]) {
+            setFieldErrors({ ...fieldErrors, [name]: "" });
+        }
+        // Clear general server error
+        if (serverError) {
+            setServerError("");
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // --- NEW: Block submit if password is weak ---
+        // Reset all errors
+        setServerError("");
+        setFieldErrors({ username: "", email: "", password: "" });
+
+        // Check if passwords match
+        if (!passwordsMatch) {
+            alert("Passwords do not match. Please check and try again.");
+            return;
+        }
+
+        // Block submit if password is weak
         if (strengthScore < 100) {
             alert("Please ensure your password meets all requirements.");
             return;
@@ -64,10 +101,49 @@ const Register = () => {
             alert("Registration Successful! Now please login.");
             navigate("/login");
         } catch (error) {
-            console.error(error);
-            // Handle specific backend errors (like "Username taken")
-            const msg = error.response?.data?.message || "Registration failed.";
-            alert(msg);
+            console.error("Registration error:", error);
+
+            // Extract error message from response
+            const errorMessage = error.response?.data?.message ||
+                error.response?.data?.error ||
+                "Registration failed. Please try again.";
+
+            // Check for specific error types
+            const lowerCaseMessage = errorMessage.toLowerCase();
+
+            if (lowerCaseMessage.includes("email") &&
+                (lowerCaseMessage.includes("already") ||
+                    lowerCaseMessage.includes("exist") ||
+                    lowerCaseMessage.includes("taken"))) {
+                setFieldErrors(prev => ({
+                    ...prev,
+                    email: "This email is already registered. Please use a different email or try logging in."
+                }));
+                setServerError("");
+            }
+            else if (lowerCaseMessage.includes("username") &&
+                (lowerCaseMessage.includes("already") ||
+                    lowerCaseMessage.includes("exist") ||
+                    lowerCaseMessage.includes("taken"))) {
+                setFieldErrors(prev => ({
+                    ...prev,
+                    username: "This username is already taken. Please choose a different username."
+                }));
+                setServerError("");
+            }
+            else if (lowerCaseMessage.includes("password") &&
+                lowerCaseMessage.includes("weak")) {
+                setFieldErrors(prev => ({
+                    ...prev,
+                    password: "Password is too weak. Please ensure it meets all requirements."
+                }));
+                setServerError("");
+            }
+            else {
+                // General server error
+                setServerError(errorMessage);
+            }
+
         } finally {
             setIsSubmitting(false);
         }
@@ -78,6 +154,12 @@ const Register = () => {
         if (strengthScore < 50) return "bg-red-500";
         if (strengthScore < 100) return "bg-yellow-500";
         return "bg-green-500";
+    };
+
+    // Helper to get input border color based on errors
+    const getInputBorderColor = (fieldName) => {
+        if (fieldErrors[fieldName]) return "border-red-500 focus:border-red-500 focus:ring-red-200";
+        return "border-gray-200 focus:border-blue-500 focus:ring-blue-200";
     };
 
     return (
@@ -99,6 +181,18 @@ const Register = () => {
                         {/* Decorative Top Bar */}
                         <div className="h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full mb-8"></div>
 
+                        {/* Server Error Display */}
+                        {serverError && (
+                            <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-lg">
+                                <div className="flex items-center">
+                                    <svg className="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <span className="text-red-800 font-medium">{serverError}</span>
+                                </div>
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Username Field */}
                             <div className="space-y-2">
@@ -112,7 +206,7 @@ const Register = () => {
                                         value={formData.username}
                                         onChange={handleChange}
                                         required
-                                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 group-hover:border-blue-400"
+                                        className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 group-hover:border-blue-400 ${getInputBorderColor('username')}`}
                                         placeholder="Enter your username"
                                     />
                                     <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
@@ -121,6 +215,15 @@ const Register = () => {
                                         </svg>
                                     </div>
                                 </div>
+                                {/* Username Error */}
+                                {fieldErrors.username && (
+                                    <div className="flex items-center text-red-600 text-sm mt-1">
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {fieldErrors.username}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Email Field */}
@@ -135,7 +238,7 @@ const Register = () => {
                                         value={formData.email}
                                         onChange={handleChange}
                                         required
-                                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 group-hover:border-blue-400"
+                                        className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 group-hover:border-blue-400 ${getInputBorderColor('email')}`}
                                         placeholder="Enter your email"
                                     />
                                     <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
@@ -144,6 +247,15 @@ const Register = () => {
                                         </svg>
                                     </div>
                                 </div>
+                                {/* Email Error */}
+                                {fieldErrors.email && (
+                                    <div className="flex items-center text-red-600 text-sm mt-1">
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {fieldErrors.email}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Password Field */}
@@ -153,12 +265,12 @@ const Register = () => {
                                 </label>
                                 <div className="relative group">
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
                                         required
-                                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 group-hover:border-blue-400"
+                                        className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 group-hover:border-blue-400 ${getInputBorderColor('password')}`}
                                         placeholder="Create a strong password"
                                     />
                                     <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
@@ -166,12 +278,37 @@ const Register = () => {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
                                     </div>
+                                    {/* Eye Toggle Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-blue-500 transition-colors duration-200"
+                                    >
+                                        {showPassword ? (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        )}
+                                    </button>
                                 </div>
+                                {/* Password Error */}
+                                {fieldErrors.password && (
+                                    <div className="flex items-center text-red-600 text-sm mt-1">
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {fieldErrors.password}
+                                    </div>
+                                )}
 
-                                {/* --- NEW: Password Strength Indicator --- */}
+                                {/* Password Strength Indicator */}
                                 {formData.password && (
                                     <div className="mt-3 space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-
                                         {/* Progress Bar */}
                                         <div className="w-full bg-gray-200 rounded-full h-2">
                                             <div
@@ -203,6 +340,70 @@ const Register = () => {
                                 )}
                             </div>
 
+                            {/* Confirm Password Field */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-gray-700">
+                                    Confirm Password
+                                </label>
+                                <div className="relative group">
+                                    <input
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        required
+                                        className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 group-hover:border-blue-400 ${
+                                            passwordsMatch
+                                                ? 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
+                                                : 'border-red-500 focus:border-red-500 focus:ring-red-200'
+                                        }`}
+                                        placeholder="Confirm your password"
+                                    />
+                                    <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                    {/* Eye Toggle Button for Confirm Password */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-blue-500 transition-colors duration-200"
+                                    >
+                                        {showConfirmPassword ? (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                </div>
+                                {/* Password Match Indicator */}
+                                {formData.confirmPassword && (
+                                    <div className={`flex items-center text-sm ${passwordsMatch ? 'text-green-600' : 'text-red-600'}`}>
+                                        {passwordsMatch ? (
+                                            <>
+                                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Passwords match
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Passwords do not match
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Terms and Conditions */}
                             <div className="flex items-start space-x-3">
                                 <input
@@ -226,8 +427,7 @@ const Register = () => {
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                // Disabled if submitting OR password is weak
-                                disabled={isSubmitting || strengthScore < 100}
+                                disabled={isSubmitting || strengthScore < 100 || !passwordsMatch}
                                 className="w-full relative overflow-hidden group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <span className="relative z-10 flex items-center justify-center">

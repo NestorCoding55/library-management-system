@@ -46,11 +46,11 @@ const Home = () => {
             {/* Stats Section */}
             <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10 w-full max-w-4xl">
                 <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div className="text-4xl font-bold text-blue-600 mb-2">10k+</div>
+                    <div className="text-4xl font-bold text-blue-600 mb-2">1k+</div>
                     <div className="text-gray-500">Books Available</div>
                 </div>
                 <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div className="text-4xl font-bold text-purple-600 mb-2">50+</div>
+                    <div className="text-4xl font-bold text-purple-600 mb-2">10+</div>
                     <div className="text-gray-500">Curated Categories</div>
                 </div>
                 <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
