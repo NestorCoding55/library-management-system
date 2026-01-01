@@ -10,8 +10,11 @@ import Register from "./pages/Register";
 import Login from "./pages/Login.jsx";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminActiveLoans from "./pages/admin/AdminActiveLoans";
 import ManageBooks from "./pages/admin/ManageBooks";
 import ManageUsers from "./pages/admin/ManageUsers";
+import UserProfile from "./pages/user/UserProfile";
+import MyBooks from "./pages/user/MyBooks"; // Adjust path if needed
 function App() {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-100 via-purple-100 to-blue-100 animate-gradient">
@@ -38,6 +41,11 @@ function App() {
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/books" element={<ManageBooks />} />
                     <Route path="/admin/users" element={<ManageUsers />} />
+                    <Route path="/admin/loans" element={<AdminActiveLoans />} />
+
+
+                    <Route path="/profile" element={<UserProfile />} />
+                    <Route path="/my-books" element={<MyBooks />} />
                 </Routes>
             </main>
 

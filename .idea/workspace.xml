@@ -4,17 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="Day 4 done, working on backend register functionality">
+    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="admin functionality">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/config/SecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/AuthController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Home.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Home.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/About.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/About.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/BookDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/BookDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Books.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Books.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Register.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Register.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/AdminDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/AdminDashboard.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,8 +29,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="Interface" />
+        <option value="Kotlin Class" />
+        <option value="Python Script" />
         <option value="Class" />
       </list>
     </option>
@@ -81,6 +84,9 @@
   </component>
   <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="$PROJECT_DIR$/../../../../xampp/php/php.exe" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -157,7 +163,11 @@
       <workItem from="1766964904028" duration="551000" />
       <workItem from="1766971021215" duration="198000" />
       <workItem from="1767042116875" duration="12684000" />
-      <workItem from="1767106729363" duration="2694000" />
+      <workItem from="1767106729363" duration="3038000" />
+      <workItem from="1767148678028" duration="2000" />
+      <workItem from="1767149124469" duration="112000" />
+      <workItem from="1767229346703" duration="594000" />
+      <workItem from="1767280742601" duration="12155000" />
     </task>
     <task id="LOCAL-00001" summary="setting up backend and frontend">
       <option name="closed" value="true" />
@@ -215,7 +225,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766630829584</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="admin functionality">
+      <option name="closed" value="true" />
+      <created>1767131694808</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1767131694809</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -232,6 +250,7 @@
     <MESSAGE value="Adding the footer" />
     <MESSAGE value="Day 3 done" />
     <MESSAGE value="Day 4 done, working on backend register functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="Day 4 done, working on backend register functionality" />
+    <MESSAGE value="admin functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="admin functionality" />
   </component>
 </project>
