@@ -50,6 +50,10 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    // Add this field inside your User class
+    @Column(name = "last_profile_update")
+    private LocalDateTime lastProfileUpdate;
+
     @Override
     public boolean isAccountNonExpired() { return true; }
 

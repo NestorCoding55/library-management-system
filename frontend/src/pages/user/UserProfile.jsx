@@ -1,13 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Clock } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, XCircle, AlertCircle, Camera, ShieldCheck, AlertTriangle, UserCheck } from "lucide-react";
 
 const UserProfile = () => {
+    // --- STATE ---
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [loanCount, setLoanCount] = useState(0);
+    const [historyCount, setHistoryCount] = useState(0);
     const [gradientIndex, setGradientIndex] = useState(0);
-    const [loanCount, setLoanCount] = useState(0); // <--- NEW STATE FOR COUNTER
     const navigate = useNavigate();
+
+    // --- File Upload State ---
+    const fileInputRef = useRef(null);
+    const [isAiScanning, setIsAiScanning] = useState(false);
+
+    // --- Edit Modal State ---
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        username: "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+    });
+    const [updateLoading, setUpdateLoading] = useState(false);
+    const [updateError, setUpdateError] = useState("");
+
+    // --- Alert Modal State ---
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({});
+
+    // --- Validation States ---
+    const [usernameError, setUsernameError] = useState("");
+    const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
+    const [usernameLoading, setUsernameLoading] = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [passwordRequirements, setPasswordRequirements] = useState({
+        length: false, uppercase: false, lowercase: false, number: false
+    });
 
     // Dynamic gradients
     const gradients = [
@@ -19,45 +53,210 @@ const UserProfile = () => {
         "from-purple-800 via-indigo-800 to-blue-800"
     ];
 
+    // --- FETCH DATA ---
     useEffect(() => {
-        // Change gradient every 5 seconds
         const interval = setInterval(() => {
             setGradientIndex((prev) => (prev + 1) % gradients.length);
         }, 5000);
-
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
-                if (!token) {
-                    navigate("/login");
-                    return;
-                }
-
-                const config = {
-                    headers: { Authorization: `Bearer ${token}` }
-                };
-
-                // 1. Fetch User Profile
-                const userResponse = await axios.get("http://localhost:8080/api/users/me", config);
-                setUser(userResponse.data);
-
-                // 2. Fetch Active Loans to count them (<--- NEW LOGIC)
-                const loansResponse = await axios.get("http://localhost:8080/api/loans/my-books", config);
-                setLoanCount(loansResponse.data.length);
-
-            } catch (error) {
-                console.error("Error fetching profile data:", error);
-                navigate("/login");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-
+        fetchProfileData();
         return () => clearInterval(interval);
     }, [navigate]);
+
+    const fetchProfileData = async () => {
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            if (!token) { navigate("/login"); return; }
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+
+            const userRes = await axios.get("http://localhost:8080/api/users/me", config);
+            setUser(userRes.data);
+            setEditFormData(prev => ({ ...prev, username: userRes.data.username }));
+
+            const loansRes = await axios.get("http://localhost:8080/api/loans/my-books", config);
+            setLoanCount(loansRes.data.length);
+
+            const historyRes = await axios.get("http://localhost:8080/api/loans/history", config);
+            setHistoryCount(historyRes.data.length);
+        } catch (error) {
+            console.error("Error:", error);
+            navigate("/login");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // --- HANDLE FILE UPLOAD (No cooldown, AI scanning only) ---
+    // --- HANDLE FILE UPLOAD ---
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // ... (File type/size checks are fine) ...
+
+        // REMOVED: if (daysRemaining > 0) { alert(...) return; }
+        // We allow upload even if daysRemaining > 0
+
+        setIsAiScanning(true);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const res = await axios.post("http://localhost:8080/api/users/upload-photo", formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+
+            setUser(res.data);
+            showAlertMessage("Success!", "Profile picture updated successfully!", "success");
+
+        } catch (err) {
+            console.error(err);
+            const errorMsg = err.response?.data?.message || "Upload failed.";
+            showAlertMessage("Upload Failed", errorMsg, "error");
+        } finally {
+            setIsAiScanning(false);
+            if(fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
+    // --- Show Alert Message ---
+    const showAlertMessage = (title, message, type) => {
+        setAlertMessage({
+            title: title,
+            message: message,
+            type: type
+        });
+        setShowAlert(true);
+    };
+
+    // --- VALIDATION HELPERS ---
+    const checkUsernameAvailability = async (username) => {
+        if (!username || username === user?.username) {
+            setIsUsernameAvailable(null);
+            setUsernameError("");
+            return;
+        }
+
+        if (username.length < 3) {
+            setUsernameError("Username must be at least 3 characters");
+            setIsUsernameAvailable(false);
+            return;
+        }
+
+        setUsernameLoading(true);
+        try {
+            const response = await axios.get(`http://localhost:8080/api/users/check-username?username=${encodeURIComponent(username)}`);
+
+            if (response.data.available) {
+                setIsUsernameAvailable(true);
+                setUsernameError("");
+            } else {
+                setIsUsernameAvailable(false);
+                setUsernameError("Username is already taken!");
+            }
+        } catch (error) {
+            console.error("Username check failed (backend might be offline or missing endpoint)", error);
+            // FIX: Don't show an error to the user, just let them try to submit
+            setIsUsernameAvailable(null);
+            setUsernameError("");
+        } finally {
+            setUsernameLoading(false);
+        }
+    };
+
+    const validatePassword = (password) => {
+        setPasswordRequirements({
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password)
+        });
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditFormData({ ...editFormData, [name]: value });
+        if (name === 'username') checkUsernameAvailability(value);
+        if (name === 'newPassword') validatePassword(value);
+    };
+
+    const handleUpdateSubmit = async (e) => {
+        e.preventDefault();
+        setUpdateLoading(true);
+        setUpdateError("");
+
+        if (editFormData.newPassword !== editFormData.confirmPassword) {
+            setUpdateError("New passwords do not match!");
+            setUpdateLoading(false);
+            return;
+        }
+
+        // FIX: Only block if explicitly FALSE (Taken). If null (unchecked), let it pass.
+        if (editFormData.username !== user?.username && isUsernameAvailable === false) {
+            setUpdateError("Username is not available.");
+            setUpdateLoading(false);
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const payload = {
+                username: editFormData.username
+            };
+
+            if (editFormData.newPassword) {
+                if (!editFormData.currentPassword) {
+                    setUpdateError("Current password is required");
+                    setUpdateLoading(false);
+                    return;
+                }
+                payload.currentPassword = editFormData.currentPassword;
+                payload.newPassword = editFormData.newPassword;
+            }
+
+            const res = await axios.put("http://localhost:8080/api/users/me", payload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setUser(res.data);
+            setShowEditModal(false);
+
+            showAlertMessage("Success!", "Profile updated successfully!", "success");
+
+            setEditFormData(prev => ({ ...prev, currentPassword: "", newPassword: "", confirmPassword: "" }));
+
+        } catch (err) {
+            if (err.response?.status === 409) {
+                setUpdateError("Username is already taken.");
+            } else if (err.response?.status === 429) {
+                setUpdateError("Too many update attempts. Please try again later.");
+            } else {
+                setUpdateError(err.response?.data?.message || "Update failed. Wait 30 days in order to update profile.");
+            }
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
+
+
+
+    const handleCloseModal = () => {
+        setShowEditModal(false);
+        setUsernameError("");
+        setIsUsernameAvailable(null);
+        setUpdateError("");
+        setEditFormData({
+            username: user?.username || "",
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: ""
+        });
+    };
+
 
     if (loading) {
         return (
@@ -81,23 +280,55 @@ const UserProfile = () => {
 
                 {/* Profile Header Card */}
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mb-8 relative">
-                    {/* Gradient Background */}
                     <div className={`h-40 bg-gradient-to-r ${gradients[gradientIndex]} transition-all duration-1000 ease-in-out`}></div>
 
-                    {/* Avatar Container */}
                     <div className="relative px-8 pb-8">
-                        <div className="absolute -top-20 left-8 transform -translate-y-0">
-                            <div className="h-40 w-40 rounded-full border-8 border-white bg-gradient-to-br from-blue-100 to-purple-100 shadow-2xl flex items-center justify-center overflow-hidden">
-                                <div className="h-full w-full flex items-center justify-center">
-                                    <span className="text-6xl font-bold text-blue-600 uppercase">
-                                        {user?.username?.charAt(0)}
-                                    </span>
+                        {/* --- PROFILE PICTURE SECTION --- */}
+                        <div className="absolute -top-20 left-8 flex flex-col items-center">
+
+                            {/* Avatar Circle */}
+                            <div className="relative">
+                                <div className="h-40 w-40 rounded-full border-8 border-white bg-white shadow-2xl flex items-center justify-center overflow-hidden relative">
+                                    {isAiScanning ? (
+                                        // AI Scanning Overlay
+                                        <div className="absolute inset-0 bg-black/60 z-10 flex flex-col items-center justify-center text-white">
+                                            <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-400 border-t-transparent mb-2"></div>
+                                            <span className="text-xs font-bold animate-pulse flex items-center">
+                                                <ShieldCheck className="w-3 h-3 mr-1"/> AI SCAN
+                                            </span>
+                                        </div>
+                                    ) : null}
+
+                                    {user?.profilePicUrl ? (
+                                        <img src={user.profilePicUrl} alt="Profile" className="h-full w-full object-cover" />
+                                    ) : (
+                                        <div className="h-full w-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                                            <span className="text-6xl font-bold text-blue-600 uppercase">{user?.username?.charAt(0)}</span>
+                                        </div>
+                                    )}
                                 </div>
+
+                                {/* Upload Button (Camera Icon) - Always enabled */}
+                                <button
+                                    onClick={() => fileInputRef.current.click()}
+                                    disabled={isAiScanning}
+                                    className={`absolute bottom-2 right-2 ${isAiScanning ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} text-white p-2.5 rounded-full shadow-lg border-4 border-white transition-all transform hover:scale-110 cursor-pointer`}
+                                    title="Change Profile Picture"
+                                >
+                                    <Camera className="w-5 h-5" />
+                                </button>
+                                {/* Hidden Input */}
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileSelect}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* User Info */}
                     <div className="px-8 pb-8 pt-24">
                         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                             <div>
@@ -110,25 +341,18 @@ const UserProfile = () => {
                                 </div>
                             </div>
 
-                            {/* Status Badges */}
                             <div className="flex flex-wrap gap-3">
                                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-green-50 to-green-100 text-green-800 border border-green-200">
-                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <UserCheck className="w-4 h-4 mr-2" />
                                     Active Member
                                 </span>
                                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 border border-blue-200">
-                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
+                                    <ShieldCheck className="w-4 h-4 mr-2" />
                                     {user?.role}
                                 </span>
                             </div>
                         </div>
 
-                        {/* Member Since */}
                         <div className="mt-6 pt-6 border-t border-gray-200">
                             <p className="text-sm text-gray-500">
                                 <span className="font-medium">Member since:</span> {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', {
@@ -143,7 +367,6 @@ const UserProfile = () => {
 
                 {/* Stats / Info Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Account Details Card */}
                     <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-bold text-gray-800 flex items-center">
@@ -154,7 +377,10 @@ const UserProfile = () => {
                                 </div>
                                 Account Details
                             </h2>
-                            <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            <button
+                                onClick={() => setShowEditModal(true)}
+                                className="text-sm text-blue-600 hover:text-blue-800 font-medium bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                            >
                                 Edit Profile
                             </button>
                         </div>
@@ -173,9 +399,7 @@ const UserProfile = () => {
                                     <p className="text-sm text-gray-500">Username</p>
                                     <p className="font-medium text-gray-900">{user?.username}</p>
                                 </div>
-                                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                                <CheckCircle className="w-5 h-5 text-green-500" />
                             </div>
 
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
@@ -183,9 +407,7 @@ const UserProfile = () => {
                                     <p className="text-sm text-gray-500">Email Address</p>
                                     <p className="font-medium text-gray-900">{user?.email}</p>
                                 </div>
-                                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                                <CheckCircle className="w-5 h-5 text-green-500" />
                             </div>
 
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
@@ -198,7 +420,6 @@ const UserProfile = () => {
                         </div>
                     </div>
 
-                    {/* Reading Stats Card */}
                     <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                         <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
                             <div className="mr-3 p-2 bg-purple-50 rounded-lg">
@@ -211,13 +432,11 @@ const UserProfile = () => {
 
                         <div className="space-y-6">
                             <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
-                                {/* FIXED: Now uses the real loanCount */}
-                                <div className="text-4xl font-bold text-blue-600 mb-2">0</div>
+                                <div className="text-4xl font-bold text-blue-600 mb-2">{historyCount}</div>
                                 <p className="text-sm text-blue-700 font-medium">Books Read</p>
                             </div>
 
                             <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200">
-                                {/* FIXED: Now uses the real loanCount */}
                                 <div className="text-4xl font-bold text-purple-600 mb-2">{loanCount}</div>
                                 <p className="text-sm text-purple-700 font-medium">Current Loans</p>
                             </div>
@@ -246,7 +465,10 @@ const UserProfile = () => {
                 <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                     <h2 className="text-xl font-bold text-gray-800 mb-6">Quick Actions</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button className="p-4 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 group">
+                        <button
+                            onClick={() => setShowEditModal(true)}
+                            className="p-4 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 group"
+                        >
                             <div className="flex items-center">
                                 <div className="mr-3 p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200">
                                     <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,7 +482,6 @@ const UserProfile = () => {
                             </div>
                         </button>
 
-                        {/* Middle Button - Open My Library */}
                         <button
                             onClick={() => navigate('/my-books')}
                             className="p-4 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 transition-all duration-200 group relative overflow-hidden"
@@ -294,6 +515,327 @@ const UserProfile = () => {
                     </div>
                 </div>
             </div>
+
+            {/* EDIT PROFILE MODAL */}
+            {showEditModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn max-h-[90vh] overflow-y-auto">
+                        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white text-center">
+                            <h3 className="text-2xl font-bold">Edit Profile</h3>
+                        </div>
+
+                        {/* --- SHOW FORM (No cooldown check) --- */}
+                        <form onSubmit={handleUpdateSubmit} className="p-6 space-y-4">
+                            {updateError && (
+                                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
+                                    {updateError}
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={editFormData.username}
+                                    onChange={handleEditChange}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                                        usernameError ? 'border-red-300' :
+                                            isUsernameAvailable === true ? 'border-green-300' :
+                                                isUsernameAvailable === false ? 'border-red-300' :
+                                                    'border-gray-300'
+                                    }`}
+                                />
+                                <div className="mt-2">
+                                    {usernameLoading ? (
+                                        <div className="flex items-center text-sm text-gray-500">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                                            Checking username...
+                                        </div>
+                                    ) : usernameError ? (
+                                        <div className="flex items-center text-sm text-red-600">
+                                            <XCircle className="w-4 h-4 mr-1" />
+                                            {usernameError}
+                                        </div>
+                                    ) : isUsernameAvailable === true ? (
+                                        <div className="flex items-center text-sm text-green-600">
+                                            <CheckCircle className="w-4 h-4 mr-1" />
+                                            Username available!
+                                        </div>
+                                    ) : editFormData.username !== user?.username && editFormData.username.length > 0 && (
+                                        <div className="text-sm text-gray-500">
+                                            Enter at least 3 characters
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="border-t pt-4 mt-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <AlertCircle className="w-4 h-4 text-gray-500" />
+                                    <p className="text-xs text-gray-500 uppercase font-bold">Change Password (Optional)</p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {/* Current Password */}
+                                    <div className="relative">
+                                        <input
+                                            type={showCurrentPassword ? "text" : "password"}
+                                            name="currentPassword"
+                                            placeholder="Current Password"
+                                            value={editFormData.currentPassword}
+                                            onChange={handleEditChange}
+                                            className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            {showCurrentPassword ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    {/* New Password */}
+                                    <div className="relative">
+                                        <input
+                                            type={showNewPassword ? "text" : "password"}
+                                            name="newPassword"
+                                            placeholder="New Password"
+                                            value={editFormData.newPassword}
+                                            onChange={handleEditChange}
+                                            className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            {showNewPassword ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    {/* Password Requirements */}
+                                    {editFormData.newPassword && (
+                                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                            <p className="text-xs font-medium text-gray-700 mb-2">Password Requirements:</p>
+                                            <div className="space-y-1">
+                                                <div className="flex items-center text-xs">
+                                                    {passwordRequirements.length ? (
+                                                        <CheckCircle className="w-3 h-3 text-green-500 mr-2" />
+                                                    ) : (
+                                                        <XCircle className="w-3 h-3 text-red-500 mr-2" />
+                                                    )}
+                                                    <span className={passwordRequirements.length ? "text-green-600" : "text-gray-600"}>
+                                                        At least 8 characters
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center text-xs">
+                                                    {passwordRequirements.uppercase ? (
+                                                        <CheckCircle className="w-3 h-3 text-green-500 mr-2" />
+                                                    ) : (
+                                                        <XCircle className="w-3 h-3 text-red-500 mr-2" />
+                                                    )}
+                                                    <span className={passwordRequirements.uppercase ? "text-green-600" : "text-gray-600"}>
+                                                        At least one uppercase letter
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center text-xs">
+                                                    {passwordRequirements.lowercase ? (
+                                                        <CheckCircle className="w-3 h-3 text-green-500 mr-2" />
+                                                    ) : (
+                                                        <XCircle className="w-3 h-3 text-red-500 mr-2" />
+                                                    )}
+                                                    <span className={passwordRequirements.lowercase ? "text-green-600" : "text-gray-600"}>
+                                                        At least one lowercase letter
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center text-xs">
+                                                    {passwordRequirements.number ? (
+                                                        <CheckCircle className="w-3 h-3 text-green-500 mr-2" />
+                                                    ) : (
+                                                        <XCircle className="w-3 h-3 text-red-500 mr-2" />
+                                                    )}
+                                                    <span className={passwordRequirements.number ? "text-green-600" : "text-gray-600"}>
+                                                        At least one number
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Confirm Password */}
+                                    <div className="relative">
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            name="confirmPassword"
+                                            placeholder="Confirm New Password"
+                                            value={editFormData.confirmPassword}
+                                            onChange={handleEditChange}
+                                            className={`w-full px-4 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm ${
+                                                editFormData.newPassword && editFormData.confirmPassword &&
+                                                editFormData.newPassword !== editFormData.confirmPassword
+                                                    ? 'border-red-300'
+                                                    : 'border-gray-300'
+                                            }`}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            {showConfirmPassword ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    {/* Password Match Indicator */}
+                                    {editFormData.newPassword && editFormData.confirmPassword && (
+                                        <div className="mt-2">
+                                            {editFormData.newPassword === editFormData.confirmPassword ? (
+                                                <div className="flex items-center text-sm text-green-600">
+                                                    <CheckCircle className="w-4 h-4 mr-1" />
+                                                    Passwords match!
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center text-sm text-red-600">
+                                                    <XCircle className="w-4 h-4 mr-1" />
+                                                    Passwords do not match
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={handleCloseModal}
+                                    className="flex-1 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    // FIX: Only disable if explicitly false
+                                    disabled={updateLoading || (editFormData.username !== user?.username && isUsernameAvailable === false)}
+                                    className={`flex-1 py-3 font-semibold rounded-xl flex justify-center items-center transition-all ${
+                                        updateLoading || (editFormData.username !== user?.username && isUsernameAvailable === false)
+                                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                            : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                                    }`}
+                                >
+                                    {updateLoading ? (
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
+                                    ) : "Save Changes"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* --- ALERT MODAL (for success/error messages) --- */}
+            {showAlert && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-slideUp">
+                        {/* Modal Header */}
+                        <div className={`p-6 text-white text-center ${
+                            alertMessage.type === 'success'
+                                ? 'bg-gradient-to-r from-green-600 to-emerald-600'
+                                : alertMessage.type === 'error'
+                                    ? 'bg-gradient-to-r from-red-600 to-rose-600'
+                                    : 'bg-gradient-to-r from-blue-600 to-purple-600'
+                        }`}>
+                            <div className="flex items-center justify-center gap-3 mb-2">
+                                {alertMessage.type === 'success' ? (
+                                    <CheckCircle className="h-8 w-8 text-white" />
+                                ) : alertMessage.type === 'error' ? (
+                                    <AlertTriangle className="h-8 w-8 text-white" />
+                                ) : (
+                                    <ShieldCheck className="h-8 w-8 text-white" />
+                                )}
+                                <h3 className="text-2xl font-bold">{alertMessage.title || "Alert"}</h3>
+                            </div>
+                            <p className="opacity-90">
+                                {alertMessage.type === 'success'
+                                    ? "Update successful!"
+                                    : alertMessage.type === 'error'
+                                        ? "Something went wrong"
+                                        : "Notice"
+                                }
+                            </p>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-8 text-center">
+                            {alertMessage.type === 'success' ? (
+                                <>
+                                    <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 mb-6">
+                                        <CheckCircle className="h-10 w-10 text-green-500" />
+                                    </div>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-3">{alertMessage.message}</h4>
+                                    <p className="text-gray-600 mb-6">
+                                        Your changes have been saved successfully.
+                                    </p>
+                                </>
+                            ) : alertMessage.type === 'error' ? (
+                                <>
+                                    <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 mb-6">
+                                        <AlertTriangle className="h-10 w-10 text-red-500" />
+                                    </div>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-3">Oops!</h4>
+                                    <p className="text-gray-600 mb-6">{alertMessage.message}</p>
+                                </>
+                            ) : null}
+
+                            {/* Action Button */}
+                            <button
+                                onClick={() => setShowAlert(false)}
+                                className={`w-full py-3.5 font-bold rounded-xl transition-all ${
+                                    alertMessage.type === 'success'
+                                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700'
+                                        : alertMessage.type === 'error'
+                                            ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-700 hover:to-rose-700'
+                                            : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                                }`}
+                            >
+                                {alertMessage.type === 'success' ? 'Continue' : 'Close'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add CSS for animations */}
+            <style jsx>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.3s ease-out;
+                }
+                .animate-slideUp {
+                    animation: slideUp 0.3s ease-out;
+                }
+            `}</style>
         </div>
     );
 };

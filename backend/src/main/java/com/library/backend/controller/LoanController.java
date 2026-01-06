@@ -58,4 +58,23 @@ public class LoanController {
         String username = auth.getName();
         return ResponseEntity.ok(loanService.isBookRentedByUser(bookId, username));
     }
+
+    // inside LoanController class
+
+    // 5. Get Reading History (Expired Loans)
+    @GetMapping("/history")
+    public ResponseEntity<List<Loan>> getReadingHistory() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(loanService.getReadingHistory(auth.getName()));
+    }
+
+    // inside LoanController.java
+
+    // 6. Return a Book Early
+    @PostMapping("/return/{loanId}")
+    public ResponseEntity<Void> returnBook(@PathVariable Long loanId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        loanService.returnBook(loanId, auth.getName());
+        return ResponseEntity.ok().build();
+    }
 }

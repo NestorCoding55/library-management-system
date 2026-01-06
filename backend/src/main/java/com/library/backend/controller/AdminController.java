@@ -3,11 +3,13 @@ package com.library.backend.controller;
 import com.library.backend.entity.User;
 import com.library.backend.repository.BookRepository;
 import com.library.backend.repository.UserRepository;
+import com.library.backend.repository.LoanRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime; // <--- ADDED THIS IMPORT
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,42 +19,37 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
-@Slf4j // Add this for logging
+@Slf4j
 public class AdminController {
 
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final LoanRepository loanRepository;
 
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Long>> getDashboardStats() {
         try {
-            log.info("Fetching dashboard stats...");
-            log.info("BookRepository: {}", bookRepository);
-            log.info("Book count query: {}", bookRepository.count());
-            log.info("User count query: {}", userRepository.count());
-
             Map<String, Long> stats = new HashMap<>();
 
             // Count all books
-            long bookCount = bookRepository.count();
-            stats.put("totalBooks", bookCount);
+            stats.put("totalBooks", bookRepository.count());
 
-            // Count all users (including admins)
-            long userCount = userRepository.count();
-            stats.put("totalUsers", userCount);
+            // Count all users
+            stats.put("totalUsers", userRepository.count());
 
-            // Placeholder for future logic (Borrowed books)
-            stats.put("activeLoans", 0L);
+            // UPDATED: Count active loans that have NOT expired yet
+            // This passes the current time to the repository to filter out old dates
+            stats.put("activeLoans", loanRepository.countByIsActiveTrueAndExpiryDateAfter(LocalDateTime.now()));
 
-            log.info("Stats calculated - Books: {}, Users: {}", bookCount, userCount);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             log.error("Error fetching dashboard stats", e);
+            // Return safe zeros on error
             Map<String, Long> errorStats = new HashMap<>();
             errorStats.put("totalBooks", 0L);
             errorStats.put("totalUsers", 0L);
             errorStats.put("activeLoans", 0L);
-            return ResponseEntity.ok(errorStats); // Return zeros on error
+            return ResponseEntity.ok(errorStats);
         }
     }
 
@@ -69,6 +66,9 @@ public class AdminController {
                         userMap.put("email", user.getEmail());
                         userMap.put("role", user.getRole());
 
+                        // Send the creation date so "Joined" column works
+                        userMap.put("createdAt", user.getCreatedAt());
+
                         return userMap;
                     })
                     .collect(Collectors.toList());
@@ -80,7 +80,6 @@ public class AdminController {
         }
     }
 
-    // Optional: Add endpoint to delete a user
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {

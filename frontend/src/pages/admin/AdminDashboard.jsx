@@ -3,23 +3,32 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const AdminDashboard = () => {
+    // We initialize these to 0
     const [stats, setStats] = useState({ totalBooks: 0, totalUsers: 0, activeLoans: 0 });
+    // NEW: Variable to hold raw data so you can see it on screen
+    const [debugData, setDebugData] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Fetch stats from our backend endpoint
         const fetchStats = async () => {
             try {
-                // Get token from EITHER storage
                 const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
                 const response = await axios.get("http://localhost:8080/api/admin/stats", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setStats(response.data);
+
+                // 1. Save raw data to show on screen
+                setDebugData(response.data);
+
+                // 2. Try to map the data (We will fix this once we see the debug info)
+                setStats({
+                    totalBooks: response.data.totalBooks || response.data.total_books || 0,
+                    totalUsers: response.data.totalUsers || response.data.total_users || 0,
+                    // One of these usually works, but if not, the debug box will tell us why
+                    activeLoans: response.data.activeLoans || response.data.active_loans || response.data.loanCount || response.data.count || 0
+                });
             } catch (error) {
                 console.error("Error fetching admin stats", error);
-                // Optional: Redirect to login if unauthorized
             }
         };
 
@@ -31,7 +40,7 @@ const AdminDashboard = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <p className="text-gray-500 text-sm font-semibold uppercase">{title}</p>
-                    <h3 className="text-3xl font-bold text-gray-800 mt-1">{value}</h3>
+                    <h3 className="text-3xl font-bold text-gray-800 mt-1">{value !== undefined ? value : 0}</h3>
                 </div>
                 <div className={`p-3 rounded-full ${color.replace('border-', 'bg-').replace('500', '100')}`}>
                     {icon}
@@ -67,24 +76,11 @@ const AdminDashboard = () => {
                     />
                 </div>
 
-                {/* Quick Actions */}
+                {/* Management Links */}
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Management</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                    {/* Add Books Action */}
-                    <Link to="/admin/books" className="group bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 flex items-center space-x-4 cursor-pointer">
-                        <div className="bg-blue-100 p-4 rounded-full group-hover:bg-blue-600 transition-colors duration-300">
-                            <svg className="w-8 h-8 text-blue-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-blue-600">Add New Book</h3>
-                            <p className="text-gray-500 text-sm">Register new inventory</p>
-                        </div>
-                    </Link>
-
-                    {/* Manage Books Action */}
+                    {/* Manage Books */}
                     <Link to="/admin/books" className="group bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 flex items-center space-x-4 cursor-pointer">
                         <div className="bg-indigo-100 p-4 rounded-full group-hover:bg-indigo-600 transition-colors duration-300">
                             <svg className="w-8 h-8 text-indigo-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,11 +89,11 @@ const AdminDashboard = () => {
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600">Manage Books</h3>
-                            <p className="text-gray-500 text-sm">Edit or delete existing books</p>
+                            <p className="text-gray-500 text-sm">Add, Edit or Delete books</p>
                         </div>
                     </Link>
 
-                    {/* Manage Users Action */}
+                    {/* Manage Users */}
                     <Link to="/admin/users" className="group bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 flex items-center space-x-4 cursor-pointer">
                         <div className="bg-green-100 p-4 rounded-full group-hover:bg-green-600 transition-colors duration-300">
                             <svg className="w-8 h-8 text-green-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +106,7 @@ const AdminDashboard = () => {
                         </div>
                     </Link>
 
-                    {/* --- NEW: Active Loans Action --- */}
+                    {/* Active Loans Link */}
                     <Link to="/admin/loans" className="group bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 flex items-center space-x-4 cursor-pointer">
                         <div className="bg-purple-100 p-4 rounded-full group-hover:bg-purple-600 transition-colors duration-300">
                             <svg className="w-8 h-8 text-purple-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,11 +115,14 @@ const AdminDashboard = () => {
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600">Active Loans</h3>
-                            <p className="text-gray-500 text-sm">Monitor rentals & revenue</p>
+                            <p className="text-gray-500 text-sm">
+                                {stats.activeLoans} active loans monitoring
+                            </p>
                         </div>
                     </Link>
-
                 </div>
+
+
             </div>
         </div>
     );

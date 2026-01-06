@@ -7,7 +7,6 @@ const ManageUsers = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
-    // Fetch users from the new endpoint
     const fetchUsers = async () => {
         try {
             setLoading(true);
@@ -28,7 +27,6 @@ const ManageUsers = () => {
         fetchUsers();
     }, []);
 
-    // Delete user function
     const handleDeleteUser = async (userId) => {
         if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
             return;
@@ -40,7 +38,6 @@ const ManageUsers = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // Remove user from local state
             setUsers(users.filter(user => user.id !== userId));
             alert("User deleted successfully.");
         } catch (error) {
@@ -49,14 +46,13 @@ const ManageUsers = () => {
         }
     };
 
-    // Filter users based on search term
     const filteredUsers = users.filter(user =>
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Format date
+    // UPDATED: More robust date formatting
     const formatDate = (dateString) => {
         if (!dateString) return "N/A";
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -69,7 +65,6 @@ const ManageUsers = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                {/* Header Section */}
                 <div className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Manage Users</h1>
@@ -83,7 +78,6 @@ const ManageUsers = () => {
                     </Link>
                 </div>
 
-                {/* Search Bar */}
                 <div className="mb-6">
                     <div className="relative">
                         <input
@@ -101,7 +95,6 @@ const ManageUsers = () => {
                     </div>
                 </div>
 
-                {/* Users Table */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
                     {loading ? (
                         <div className="p-10 text-center">
@@ -110,7 +103,6 @@ const ManageUsers = () => {
                         </div>
                     ) : (
                         <>
-                            {/* Stats Summary */}
                             <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
                                 <div className="text-sm text-gray-600">
                                     Showing <span className="font-semibold">{filteredUsers.length}</span> user{filteredUsers.length !== 1 ? 's' : ''}
@@ -147,57 +139,29 @@ const ManageUsers = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${user.role === 'ADMIN' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>
-                                                        {user.role === 'ADMIN' ? (
-                                                            <>
-                                                                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                                Admin
-                                                            </>
-                                                        ) : 'User'}
+                                                        {user.role === 'ADMIN' ? 'Admin' : 'User'}
                                                     </span>
                                             </td>
                                             <td className="px-6 py-4 text-gray-600">
-                                                <div className="flex items-center">
-                                                    <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                    </svg>
-                                                    {user.email}
-                                                </div>
+                                                {user.email}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
-                                                {formatDate(user.createdAt)}
+                                                {/* UPDATED: Checks for createdAt OR created_at */}
+                                                {formatDate(user.createdAt || user.created_at)}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="flex space-x-2">
-                                                    <button
-                                                        onClick={() => handleDeleteUser(user.id)}
-                                                        disabled={user.role === 'ADMIN'} // Prevent deleting admins
-                                                        className={`px-3 py-1 text-sm rounded-lg transition-colors ${user.role === 'ADMIN'
-                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                            : 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700'}`}
-                                                        title={user.role === 'ADMIN' ? "Cannot delete admin users" : "Delete user"}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteUser(user.id)}
+                                                    disabled={user.role === 'ADMIN'}
+                                                    className={`px-3 py-1 text-sm rounded-lg transition-colors ${user.role === 'ADMIN'
+                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                        : 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700'}`}
+                                                >
+                                                    Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
-
-                                    {filteredUsers.length === 0 && (
-                                        <tr>
-                                            <td colSpan="5" className="px-6 py-10 text-center">
-                                                <div className="text-gray-500">
-                                                    <svg className="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                    </svg>
-                                                    <p className="mt-2 text-lg font-medium">No users found</p>
-                                                    <p className="mt-1">Try adjusting your search terms</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
                                     </tbody>
                                 </table>
                             </div>

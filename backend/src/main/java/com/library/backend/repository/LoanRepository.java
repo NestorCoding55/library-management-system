@@ -4,6 +4,8 @@ import com.library.backend.entity.Loan;
 import com.library.backend.entity.User;
 import com.library.backend.entity.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +19,6 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     // Check if a specific user has an active loan for a specific book
     boolean existsByUserAndBookAndIsActiveTrue(User user, Book book);
+
+    long countByIsActiveTrueAndExpiryDateAfter(LocalDateTime now);
 }

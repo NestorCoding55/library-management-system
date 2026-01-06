@@ -34,4 +34,7 @@ public class Book {
 
     @Column(length = 1000) // Allow up to 1000 characters
     private String description;
+
+    private Double averageRating = 0.0;
+    private Integer totalVotes = 0;
 }
