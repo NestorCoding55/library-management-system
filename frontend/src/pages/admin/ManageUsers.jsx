@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 const ManageUsers = () => {
+    const { t } = useTranslation();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -17,7 +19,7 @@ const ManageUsers = () => {
             setUsers(response.data);
         } catch (error) {
             console.error("Error fetching users:", error);
-            alert("Could not load users. You might not have admin privileges.");
+            alert(t('admin.users_fetch_error', 'Could not load users. You might not have admin privileges.'));
         } finally {
             setLoading(false);
         }
@@ -28,7 +30,7 @@ const ManageUsers = () => {
     }, []);
 
     const handleDeleteUser = async (userId) => {
-        if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+        if (!window.confirm(t('admin.confirm_delete_user', 'Are you sure you want to delete this user? This action cannot be undone.'))) {
             return;
         }
 
@@ -39,10 +41,10 @@ const ManageUsers = () => {
             });
 
             setUsers(users.filter(user => user.id !== userId));
-            alert("User deleted successfully.");
+            alert(t('admin.user_deleted', 'User deleted successfully.'));
         } catch (error) {
             console.error("Error deleting user:", error);
-            alert("Failed to delete user.");
+            alert(t('admin.user_delete_failed', 'Failed to delete user.'));
         }
     };
 
@@ -52,7 +54,6 @@ const ManageUsers = () => {
         user.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // UPDATED: More robust date formatting
     const formatDate = (dateString) => {
         if (!dateString) return "N/A";
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -67,14 +68,14 @@ const ManageUsers = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Manage Users</h1>
-                        <p className="text-gray-600 mt-2">View and manage all registered users</p>
+                        <h1 className="text-3xl font-bold text-gray-900">{t('admin.users_title', 'Manage Users')}</h1>
+                        <p className="text-gray-600 mt-2">{t('admin.users_subtitle', 'View and manage all registered users')}</p>
                     </div>
                     <Link
                         to="/admin/dashboard"
                         className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-lg font-medium transition-colors"
                     >
-                        ← Back to Dashboard
+                        ← {t('admin.back_to_dashboard', 'Back to Dashboard')}
                     </Link>
                 </div>
 
@@ -82,7 +83,7 @@ const ManageUsers = () => {
                     <div className="relative">
                         <input
                             type="text"
-                            placeholder="Search users by name, email, or role..."
+                            placeholder={t('admin.search_users', 'Search users by name, email, or role...')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full px-4 py-3 pl-12 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
@@ -99,16 +100,16 @@ const ManageUsers = () => {
                     {loading ? (
                         <div className="p-10 text-center">
                             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                            <p className="text-gray-500 mt-4">Loading users...</p>
+                            <p className="text-gray-500 mt-4">{t('admin.loading_users', 'Loading users...')}</p>
                         </div>
                     ) : (
                         <>
                             <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
                                 <div className="text-sm text-gray-600">
-                                    Showing <span className="font-semibold">{filteredUsers.length}</span> user{filteredUsers.length !== 1 ? 's' : ''}
+                                    {t('admin.showing_users', 'Showing')} <span className="font-semibold">{filteredUsers.length}</span> {t('admin.user_count', 'user(s)')}
                                 </div>
                                 <div className="text-sm text-gray-600">
-                                    Total Registered: <span className="font-semibold">{users.length}</span>
+                                    {t('admin.total_registered', 'Total Registered')}: <span className="font-semibold">{users.length}</span>
                                 </div>
                             </div>
 
@@ -116,11 +117,11 @@ const ManageUsers = () => {
                                 <table className="w-full">
                                     <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('admin.user_table_user', 'User')}</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('admin.user_table_role', 'Role')}</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('admin.user_table_email', 'Email')}</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('admin.user_table_joined', 'Joined')}</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('admin.table_actions', 'Actions')}</th>
                                     </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
@@ -133,20 +134,19 @@ const ManageUsers = () => {
                                                     </div>
                                                     <div className="ml-4">
                                                         <div className="font-semibold text-gray-900">{user.username}</div>
-                                                        <div className="text-sm text-gray-500">ID: {user.id}</div>
+                                                        <div className="text-sm text-gray-500">{t('admin.user_id', 'ID')}: {user.id}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${user.role === 'ADMIN' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>
-                                                        {user.role === 'ADMIN' ? 'Admin' : 'User'}
+                                                        {user.role === 'ADMIN' ? t('admin.role_admin', 'Admin') : t('admin.role_user', 'User')}
                                                     </span>
                                             </td>
                                             <td className="px-6 py-4 text-gray-600">
                                                 {user.email}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
-                                                {/* UPDATED: Checks for createdAt OR created_at */}
                                                 {formatDate(user.createdAt || user.created_at)}
                                             </td>
                                             <td className="px-6 py-4">
@@ -157,7 +157,7 @@ const ManageUsers = () => {
                                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                         : 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700'}`}
                                                 >
-                                                    Delete
+                                                    {t('admin.btn_delete', 'Delete')}
                                                 </button>
                                             </td>
                                         </tr>

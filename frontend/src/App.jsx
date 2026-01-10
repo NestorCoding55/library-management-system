@@ -15,6 +15,7 @@ import ManageBooks from "./pages/admin/ManageBooks";
 import ManageUsers from "./pages/admin/ManageUsers";
 import UserProfile from "./pages/user/UserProfile";
 import MyBooks from "./pages/user/MyBooks"; // Adjust path if needed
+import Support from "./pages/Support";
 function App() {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-100 via-purple-100 to-blue-100 animate-gradient">
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/support" element={<Support />} />
 
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/books" element={<ManageBooks />} />

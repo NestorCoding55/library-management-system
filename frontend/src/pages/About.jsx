@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo.png';
 import { BookOpen, Clock, DollarSign, Shield, TrendingUp, Users } from 'lucide-react';
 
 const About = () => {
+    const { t } = useTranslation();
     const location = useLocation();
 
     useEffect(() => {
@@ -13,35 +15,35 @@ const About = () => {
     const features = [
         {
             icon: <Clock className="w-6 h-6" />,
-            title: "3-Day Reading Window",
-            description: "Each book is a 3-day adventure. Our system encourages focused, immersive reading without distractions.",
+            title: t('about.feat_time_title'),
+            description: t('about.feat_time_desc'),
             color: "text-blue-600 bg-blue-50"
         },
         {
             icon: <DollarSign className="w-6 h-6" />,
-            title: "$5 Flat Rate",
-            description: "Affordable access for everyone. Just $5 gives you 72 hours of unlimited reading.",
+            title: t('about.feat_price_title'),
+            description: t('about.feat_price_desc'),
             color: "text-green-600 bg-green-50"
         },
         {
             icon: <Shield className="w-6 h-6" />,
-            title: "One Book at a Time",
-            description: "Deep focus beats multitasking. Complete your current book to unlock the next.",
+            title: t('about.feat_focus_title'),
+            description: t('about.feat_focus_desc'),
             color: "text-purple-600 bg-purple-50"
         },
         {
             icon: <TrendingUp className="w-6 h-6" />,
-            title: "Read More, Faster",
-            description: "Our members read 3x more books than average. The time constraint creates momentum.",
+            title: t('about.feat_community_title'),
+            description: t('about.feat_community_desc'),
             color: "text-orange-600 bg-orange-50"
         }
     ];
 
     const stats = [
-        { value: "3x", label: "More books read" },
-        { value: "72h", label: "Per book loan" },
-        { value: "1", label: "Book at a time" },
-        { value: "$5", label: "Flat rate" }
+        { value: "3x", label: t('about.stat_more_books', "More books read") },
+        { value: "72h", label: t('about.stat_per_loan', "Per book loan") },
+        { value: "1", label: t('about.stat_book_at_time', "Book at a time") },
+        { value: "$5", label: t('about.stat_flat_rate', "Flat rate") }
     ];
 
     return (
@@ -55,13 +57,10 @@ const About = () => {
                         </div>
                     </div>
                     <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
-                        Revolutionizing
-                        <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                            How We Read
-                        </span>
+                        {t('about.hero_title')}
                     </h1>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                        We're on a mission to transform casual readers into voracious book lovers through our unique, focused reading system.
+                        {t('about.hero_subtitle')}
                     </p>
                 </div>
 
@@ -87,21 +86,21 @@ const About = () => {
                                 <div className="p-2 bg-blue-100 rounded-lg">
                                     <Users className="w-6 h-6 text-blue-600" />
                                 </div>
-                                <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
+                                <h2 className="text-3xl font-bold text-gray-900">{t('about.mission_title', "Our Mission")}</h2>
                             </div>
                             <p className="text-gray-700 leading-relaxed text-lg mb-6">
-                                We exist for one purpose: <span className="font-bold text-blue-700">to help people read more books in less time.</span> In today's fast-paced world, most books gather dust on shelves. We're changing that.
+                                {t('about.mission_description', "We exist for one purpose: to help people read more books in less time. In today's fast-paced world, most books gather dust on shelves. We're changing that.")}
                             </p>
                             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
                                 <p className="text-gray-800 font-medium">
-                                    📚 Our proven system: <span className="font-bold">$5 for 3 days</span> with <span className="font-bold">only one book at a time</span>.
+                                    📚 {t('about.proven_system', "Our proven system: $5 for 3 days with only one book at a time.")}
                                 </p>
                             </div>
                         </div>
 
                         {/* How It Works */}
                         <div className="space-y-8">
-                            <h3 className="text-2xl font-bold text-gray-900">The Science Behind Our System</h3>
+                            <h3 className="text-2xl font-bold text-gray-900">{t('about.science_title', "The Science Behind Our System")}</h3>
                             <div className="space-y-6">
                                 {features.map((feature, index) => (
                                     <div
@@ -133,8 +132,8 @@ const About = () => {
                                 <div className="relative bg-gradient-to-br from-white to-blue-50 rounded-3xl shadow-2xl border border-gray-200 overflow-hidden group">
                                     {/* Card Header */}
                                     <div className="p-8 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
-                                        <h3 className="text-2xl font-bold mb-2">The Perfect Reading Rhythm</h3>
-                                        <p className="text-blue-100">72 hours of focused reading</p>
+                                        <h3 className="text-2xl font-bold mb-2">{t('about.perfect_rhythm', "The Perfect Reading Rhythm")}</h3>
+                                        <p className="text-blue-100">{t('about.hours_focused', "72 hours of focused reading")}</p>
                                     </div>
 
                                     {/* Card Content */}
@@ -154,7 +153,7 @@ const About = () => {
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <div className="text-center">
                                                         <div className="text-4xl font-bold text-gray-900">72h</div>
-                                                        <div className="text-gray-600">Reading Window</div>
+                                                        <div className="text-gray-600">{t('about.reading_window', "Reading Window")}</div>
                                                     </div>
                                                 </div>
                                                 <svg className="w-full h-full transform -rotate-90">
@@ -190,8 +189,8 @@ const About = () => {
                                                     <TrendingUp className="w-5 h-5 text-green-600" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-gray-900">3x Reading Speed</div>
-                                                    <div className="text-sm text-gray-600">Members finish books faster</div>
+                                                    <div className="font-bold text-gray-900">{t('about.reading_speed', "3x Reading Speed")}</div>
+                                                    <div className="text-sm text-gray-600">{t('about.members_finish', "Members finish books faster")}</div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -199,8 +198,8 @@ const About = () => {
                                                     <Shield className="w-5 h-5 text-purple-600" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-gray-900">Zero Distractions</div>
-                                                    <div className="text-sm text-gray-600">One book policy ensures focus</div>
+                                                    <div className="font-bold text-gray-900">{t('about.zero_distractions', "Zero Distractions")}</div>
+                                                    <div className="text-sm text-gray-600">{t('about.one_book_policy', "One book policy ensures focus")}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -213,21 +212,21 @@ const About = () => {
 
                 {/* CTA Section */}
                 <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-3xl p-12 text-center text-white shadow-2xl">
-                    <h2 className="text-3xl font-bold mb-4">Ready to Read More?</h2>
+                    <h2 className="text-3xl font-bold mb-4">{t('about.ready_title', "Ready to Read More?")}</h2>
                     <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                        Join thousands who have discovered the joy of reading more books in less time.
+                        {t('about.join_thousands', "Join thousands who have discovered the joy of reading more books in less time.")}
                     </p>
                     <div className="inline-flex flex-col sm:flex-row gap-6 items-center">
                         <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                            <div className="text-4xl font-bold">$5</div>
-                            <div className="text-blue-100">per book loan</div>
+                            <div className="text-4xl font-bold">{t('about.price_big')}</div>
+                            <div className="text-blue-100">{t('about.price_per_loan')}</div>
                         </div>
                         <div className="text-left">
-                            <div className="text-lg font-semibold">What you get:</div>
+                            <div className="text-lg font-semibold">{t('about.what_you_get')}</div>
                             <ul className="text-blue-100 space-y-2 mt-2">
-                                <li className="flex items-center gap-2">✓ 3 full days with your book</li>
-                                <li className="flex items-center gap-2">✓ Focus on one book at a time</li>
-                                <li className="flex items-center gap-2">✓ No distractions, just reading</li>
+                                <li className="flex items-center gap-2">✓ {t('about.point_1')}</li>
+                                <li className="flex items-center gap-2">✓ {t('about.point_2')}</li>
+                                <li className="flex items-center gap-2">✓ {t('about.point_3')}</li>
                             </ul>
                         </div>
                     </div>

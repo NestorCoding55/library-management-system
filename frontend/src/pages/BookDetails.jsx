@@ -1,328 +1,602 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import StarRating from '../components/StarRating'; // <--- MAKE SURE THIS PATH IS CORRECT
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import { BookOpen, Clock, Star, User, MessageSquare, CheckCircle, AlertCircle, ArrowLeft, History, X, Info, AlertTriangle } from "lucide-react";
+import StarRating from "../components/StarRating";
+import { useTranslation } from 'react-i18next';
 
 const BookDetails = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // --- Data State ---
+    // --- State ---
     const [book, setBook] = useState(null);
-    const [reviews, setReviews] = useState([]); // <--- NEW
     const [loading, setLoading] = useState(true);
-    const [alreadyRented, setAlreadyRented] = useState(false);
-
-    // --- UI State ---
     const [renting, setRenting] = useState(false);
-    const [showModal, setShowModal] = useState(false);
 
-    // --- Review Form State ---
-    const [userRating, setUserRating] = useState(0); // <--- NEW
-    const [comment, setComment] = useState("");      // <--- NEW
+    // --- New Logic State ---
+    const [activeLoan, setActiveLoan] = useState(false); // Do I have it NOW?
+    const [historyData, setHistoryData] = useState(null); // Have I read it BEFORE?
 
-    // --- Error Notification State ---
-    const [errorMsg, setErrorMsg] = useState("");
+    const [reviews, setReviews] = useState([]);
+    const [userRating, setUserRating] = useState(0);
+    const [userComment, setUserComment] = useState("");
+    const [submittingReview, setSubmittingReview] = useState(false);
+    const [myExistingReview, setMyExistingReview] = useState(null); // Did I review it already?
 
-    // Helper to fetch data (refactored to be reusable)
-    const loadData = async () => {
-        try {
-            // 1. Get Book Details
-            const bookRes = await axios.get(`http://localhost:8080/api/books/${id}`);
-            setBook(bookRes.data);
+    // --- New: Alert State ---
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertTitle, setAlertTitle] = useState("");
+    const [alertMessage, setAlertMessage] = useState("");
+    const [alertType, setAlertType] = useState("info"); // info, success, warning, error
 
-            // 2. Get Reviews (NEW)
-            const reviewsRes = await axios.get(`http://localhost:8080/api/reviews/book/${id}`);
-            setReviews(reviewsRes.data);
+    // Auth Helpers
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const currentUsername = localStorage.getItem("username") || sessionStorage.getItem("username");
+    const isLoggedIn = !!token;
 
-            // 3. Check Rental Status
-            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            if (token) {
-                const checkRes = await axios.get(`http://localhost:8080/api/loans/check/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setAlreadyRented(checkRes.data);
-            }
-            setLoading(false);
-        } catch (err) {
-            console.error(err);
-            setLoading(false);
-        }
+    // --- Show Alert Function ---
+    const showCustomAlert = (title, message, type = "info") => {
+        setAlertTitle(title);
+        setAlertMessage(message);
+        setAlertType(type);
+        setShowAlert(true);
+    };
+
+    // --- Hide Alert ---
+    const hideAlert = () => {
+        setShowAlert(false);
+        setTimeout(() => {
+            setAlertTitle("");
+            setAlertMessage("");
+            setAlertType("info");
+        }, 300);
+    };
+
+    // --- Confirm Dialog ---
+    const showConfirmDialog = (title, message, onConfirm) => {
+        setAlertTitle(title);
+        setAlertMessage(message);
+        setAlertType("confirm");
+        setShowAlert(true);
+
+        // Store the confirm callback
+        const confirmCallback = () => {
+            onConfirm();
+            hideAlert();
+        };
+
+        // We'll handle this in the alert modal
+        window.confirmCallback = confirmCallback;
     };
 
     useEffect(() => {
-        loadData();
-    }, [id]);
+        const loadAllData = async () => {
+            try {
+                // 1. Fetch Book Details
+                const bookRes = await axios.get(`http://localhost:8080/api/books/${id}`);
+                setBook(bookRes.data);
 
-    // Helper to clear error after 4 seconds
-    const triggerError = (msg) => {
-        setErrorMsg(msg);
-        setShowModal(false);
-        setTimeout(() => setErrorMsg(""), 4000);
-    };
+                // 2. Fetch Reviews for this book
+                const reviewsRes = await axios.get(`http://localhost:8080/api/reviews/book/${id}`);
+                setReviews(reviewsRes.data);
 
-    // --- RENTAL LOGIC ---
-    const handleConfirmRent = async () => {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-        if (!token) {
+                // 3. IF LOGGED IN: Run User Specific Checks
+                if (isLoggedIn) {
+                    // A. Check if user already wrote a review
+                    const myReview = reviewsRes.data.find(r => r.username === currentUsername);
+                    setMyExistingReview(myReview);
+
+                    // B. Check for ACTIVE rental (server check)
+                    try {
+                        const activeRes = await axios.get(`http://localhost:8080/api/loans/check/${id}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        setActiveLoan(activeRes.data);
+                    } catch (err) {
+                        // Silent fail - don't show alert
+                    }
+
+                    // C. Check HISTORY (fetch all history and find this book)
+                    try {
+                        const historyRes = await axios.get(`http://localhost:8080/api/loans/history`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const pastRead = historyRes.data.find(loan => loan.book.id === parseInt(id));
+                        setHistoryData(pastRead);
+                    } catch (err) {
+                        // Silent fail - don't show alert
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error loading book:", error);
+                // If book doesn't exist, setBook to null to show "Book not found" page
+                if (error.response?.status === 404) {
+                    setBook(null);
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadAllData();
+    }, [id, isLoggedIn, currentUsername, token]);
+
+    // --- Action: Rent Book ---
+    const handleRent = async () => {
+        if (!isLoggedIn) {
             navigate("/login");
             return;
         }
 
-        setRenting(true);
-        try {
-            await axios.post(`http://localhost:8080/api/loans/rent/${id}`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setShowModal(false);
-            navigate("/my-books");
-        } catch (error) {
-            const message = error.response?.data?.message || "Rental failed.";
-            triggerError(message);
-        } finally {
-            setRenting(false);
+        if (activeLoan) {
+            showCustomAlert(t('alerts.already_rented_title'), t('alerts.already_rented_msg'), "warning");
+            return;
         }
+
+        // Show custom confirmation dialog
+        showConfirmDialog(
+            t('alerts.rent_confirm_title', { title: book.title }),
+            t('alerts.rent_confirm_msg'),
+            async () => {
+                setRenting(true);
+                try {
+                    await axios.post(`http://localhost:8080/api/loans/rent/${book.id}`, {}, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    showCustomAlert(t('alerts.rent_success_title'), t('alerts.rent_success_msg'), "success");
+                    setActiveLoan(true); // Update UI immediately
+
+                    // Refresh book to update availability if needed
+                    const updatedBook = await axios.get(`http://localhost:8080/api/books/${id}`);
+                    setBook(updatedBook.data);
+
+                } catch (error) {
+                    const msg = error.response?.data?.message || t('alerts.generic_error');
+                    showCustomAlert(t('alerts.rent_failed_title'), t('alerts.rent_failed_msg', { error: msg }), "error");
+                } finally {
+                    setRenting(false);
+                }
+            }
+        );
     };
 
-    // --- REVIEW LOGIC (NEW) ---
-    const handleSubmitReview = async () => {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-        if (!token) {
-            triggerError("You must be logged in to vote.");
+    // --- Action: Submit Review ---
+    const handleSubmitReview = async (e) => {
+        e.preventDefault();
+
+        if (myExistingReview) {
+            showCustomAlert(t('alerts.already_reviewed_title'), t('alerts.already_reviewed_msg'), "warning");
             return;
         }
         if (userRating === 0) {
-            triggerError("Please select a star rating.");
+            showCustomAlert(t('alerts.rating_required_title'), t('alerts.rating_required_msg'), "info");
             return;
         }
 
+        setSubmittingReview(true);
         try {
             await axios.post("http://localhost:8080/api/reviews/add", {
-                bookId: id,
+                bookId: book.id,
                 rating: userRating,
-                comment: comment
+                comment: userComment
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // Reset form and reload data to show new average
-            setComment("");
+            // Reload reviews to show the new one
+            const res = await axios.get(`http://localhost:8080/api/reviews/book/${id}`);
+            setReviews(res.data);
+            setMyExistingReview(res.data.find(r => r.username === currentUsername));
+
+            // Clear form
             setUserRating(0);
-            alert("Review submitted!");
-            loadData();
+            setUserComment("");
+            showCustomAlert(t('alerts.review_success_title'), t('alerts.review_success_msg'), "success");
+
         } catch (error) {
-            const msg = error.response?.data || "Failed to submit review.";
-            triggerError(msg);
+            showCustomAlert(t('alerts.review_failed_title'), t('alerts.review_failed_msg', { error: error.response?.data || t('alerts.generic_error') }), "error");
+        } finally {
+            setSubmittingReview(false);
         }
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+            <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+                <p className="mt-4 text-gray-600 font-medium">{t('book_details.loading')}</p>
+            </div>
         </div>
     );
 
-    if (!book) return <div className="text-center py-20">Book not found!</div>;
+    if (!book) return (
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('book_details.book_not_found')}</h2>
+                <p className="text-gray-600 mb-4">{t('book_details.book_not_found_msg')}</p>
+                <button
+                    onClick={() => navigate('/books')}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                    {t('book_details.btn_browse_books')}
+                </button>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-10 relative">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center text-gray-600 hover:text-blue-600 mb-8 transition-colors group"
+                >
+                    <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+                    {t('book_details.back_btn')}
+                </button>
 
-            {/* --- ERROR TOAST --- */}
-            {errorMsg && (
-                <div className="fixed top-24 right-5 z-50 animate-bounce-in">
-                    <div className="bg-white border-l-4 border-red-500 shadow-2xl rounded-lg p-4 flex items-center pr-8 min-w-[300px]">
-                        <div className="text-red-500 bg-red-100 rounded-full p-2 mr-3">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-gray-800">Action Failed</h4>
-                            <p className="text-sm text-gray-600">{errorMsg}</p>
-                        </div>
-                        <button onClick={() => setErrorMsg("")} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+                {/* --- Main Book Card --- */}
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col md:flex-row relative">
+
+                    {/* User Status Badges (Top Right Overlay) */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                        {activeLoan && (
+                            <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
+                                <Clock className="w-4 h-4 mr-2" />
+                                {t('book_details.badge_rented')}
+                            </span>
+                        )}
+                        {historyData && !activeLoan && (
+                            <span className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                {t('book_details.badge_read_on', { date: new Date(historyData.expiryDate).toLocaleDateString() })}
+                            </span>
+                        )}
                     </div>
-                </div>
-            )}
 
-            <button onClick={() => navigate('/books')} className="mb-6 text-blue-600 font-semibold hover:underline">
-                ← Back to Collection
-            </button>
-
-            {/* --- MAIN CARD --- */}
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row mb-12">
-                {/* Visual Cover */}
-                <div className={`md:w-1/3 p-8 flex items-center justify-center text-white relative overflow-hidden ${alreadyRented ? 'bg-gray-600' : 'bg-gradient-to-br from-blue-600 to-purple-600'}`}>
-                    <div className="text-center relative z-10">
-                        <h1 className="text-6xl font-bold mb-2 opacity-90">{book.title.charAt(0)}</h1>
-                        <p className="opacity-75 font-medium tracking-wide">
-                            {alreadyRented ? "OWNED COPY" : "DIGITAL EDITION"}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Info Section */}
-                <div className="p-8 md:w-2/3 flex flex-col justify-between">
-                    <div>
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">{book.title}</h1>
-                                <p className="text-lg text-gray-600 mt-1">by {book.author}</p>
+                    {/* Left: Cover */}
+                    <div className="md:w-1/3 bg-gradient-to-br from-gray-900 to-blue-900 p-8 flex items-center justify-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                        <div className="relative z-10 w-48 h-72 bg-white rounded-r-lg shadow-2xl flex flex-col transform hover:scale-105 transition-transform duration-300">
+                            <div className="absolute left-0 top-0 bottom-0 w-4 bg-gray-200/50 z-20"></div>
+                            <div className="flex-1 p-4 flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
+                                <BookOpen className="w-16 h-16 text-blue-500" />
                             </div>
-                            {alreadyRented ? (
-                                <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase border border-green-200">
-                                    In Your Library
-                                </span>
+                        </div>
+                    </div>
+
+                    {/* Right: Details */}
+                    <div className="md:w-2/3 p-8 md:p-12 flex flex-col">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <h1 className="text-4xl font-bold text-gray-900 mb-2">{book.title}</h1>
+                                <p className="text-xl text-gray-600 font-medium">{t('books.by_author')} {book.author}</p>
+                            </div>
+                        </div>
+
+                        {/* Meta Data */}
+                        <div className="flex flex-wrap gap-3 mb-8">
+                            <span className="px-4 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-full text-sm font-semibold border border-blue-200">
+                                {book.category}
+                            </span>
+                            <div className="flex items-center bg-gradient-to-r from-yellow-50 to-amber-50 px-4 py-1.5 rounded-full border border-yellow-100">
+                                <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                                <span className="font-bold text-gray-900">{book.averageRating || "0.0"}</span>
+                                <span className="text-xs text-gray-500 ml-1">({book.totalVotes} {t('books.votes')})</span>
+                            </div>
+                        </div>
+
+                        {/* Description */}
+                        <div className="prose text-gray-600 mb-8 flex-1">
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-2">{t('book_details.synopsis')}</h3>
+                            <p className="leading-relaxed text-gray-700">{book.description || t('book_details.no_description')}</p>
+                        </div>
+
+                        {/* Action Bar */}
+                        <div className="pt-6 border-t border-gray-100 flex items-center justify-between">
+                            <div className="text-gray-500 text-sm">
+                                {historyData ? (
+                                    <span className="flex items-center text-purple-600 font-medium">
+                                        <History className="w-4 h-4 mr-2" />
+                                        {t('book_details.msg_finished')}
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center">
+                                        <Clock className="w-4 h-4 mr-2" />
+                                        {t('book_details.rental_period')}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Logic for Buttons */}
+                            {activeLoan ? (
+                                <Link
+                                    to="/my-books"
+                                    className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+                                >
+                                    {t('book_details.btn_continue_reading')}
+                                </Link>
+                            ) : historyData ? (
+                                <button
+                                    onClick={handleRent}
+                                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center"
+                                >
+                                    <BookOpen className="w-4 h-4 mr-2" />
+                                    {t('book_details.btn_rent_again')}
+                                </button>
+                            ) : !book.available ? (
+                                <button disabled className="px-8 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-400 font-bold rounded-xl cursor-not-allowed shadow-inner">
+                                    {t('book_details.status_unavailable')}
+                                </button>
                             ) : (
-                                <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase border border-blue-100">
-                                    {book.category}
-                                </span>
+                                <button
+                                    onClick={handleRent}
+                                    disabled={renting}
+                                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                >
+                                    {renting ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                                            {t('book_details.btn_processing')}
+                                        </>
+                                    ) : t('book_details.btn_rent')}
+                                </button>
                             )}
                         </div>
-
-                        {/* NEW: Average Rating Badge */}
-                        <div className="flex items-center mb-6 bg-yellow-50 w-fit px-3 py-1.5 rounded-lg border border-yellow-100">
-                            <span className="text-2xl font-bold text-yellow-600 mr-2 leading-none">{book.averageRating || "0.0"}</span>
-                            <div className="flex flex-col">
-                                <StarRating rating={book.averageRating || 0} />
-                                <span className="text-xs text-yellow-700 mt-0.5">{book.totalVotes || 0} votes</span>
-                            </div>
-                        </div>
-
-                        <p className="text-gray-600 leading-relaxed mb-8">
-                            {book.description || "No description available."}
-                        </p>
                     </div>
+                </div>
 
-                    {/* ACTION BUTTONS */}
-                    <div className="mt-4 pt-6 border-t border-gray-100">
-                        {alreadyRented ? (
-                            <button
-                                onClick={() => navigate('/my-books')}
-                                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2"
-                            >
-                                Read Now (Active Rental)
-                            </button>
-                        ) : (
-                            <div className="flex flex-col gap-4">
-                                <div className="flex justify-between items-center text-sm font-bold text-gray-500">
-                                    <span>PRICE: $5.00</span>
-                                    <span>ACCESS: 3 DAYS</span>
+                {/* --- REVIEWS SECTION --- */}
+                <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                    {/* Review Form (Or 'Already Reviewed' Message) */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-6">
+                            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                                <MessageSquare className="w-5 h-5 mr-2 text-blue-500" />
+                                {t('book_details.reviews_title')}
+                            </h3>
+
+                            {!isLoggedIn ? (
+                                <div className="text-center py-8 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-200">
+                                    <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <User className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                    <p className="text-gray-500 mb-3">{t('book_details.login_to_rate')}</p>
+                                    <Link to="/login" className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:shadow-md transition-all">
+                                        {t('book_details.btn_sign_in')}
+                                    </Link>
                                 </div>
-                                <button
-                                    onClick={() => setShowModal(true)}
-                                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
-                                >
-                                    Rent Digital Copy
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+                            ) : myExistingReview ? (
+                                // STATE: ALREADY REVIEWED
+                                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 text-center">
+                                    <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-emerald-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <CheckCircle className="w-6 h-6" />
+                                    </div>
+                                    <h4 className="text-gray-900 font-bold mb-1">{t('book_details.review_thanks')}</h4>
+                                    <p className="text-sm text-gray-600 mb-3">{t('book_details.you_rated')}</p>
+                                    <div className="flex justify-center mb-4">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                className={`w-5 h-5 ${i < myExistingReview.rating ? "text-yellow-400 fill-current" : "text-gray-200"}`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-gray-400 italic">{t('book_details.review_no_edit')}</p>
+                                </div>
+                            ) : (
+                                // STATE: CAN WRITE REVIEW
+                                <form onSubmit={handleSubmitReview}>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('book_details.your_rating')}</label>
+                                        <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-4 rounded-xl border border-gray-200">
+                                            <StarRating
+                                                rating={userRating}
+                                                onRate={setUserRating}
+                                                editable={true}
+                                            />
+                                            <p className="text-xs text-gray-500 mt-2 text-center">
+                                                {userRating === 0
+                                                    ? t('book_details.tap_stars')
+                                                    : t(userRating === 1 ? 'book_details.you_selected_stars' : 'book_details.you_selected_stars_plural', { count: userRating })}
+                                            </p>
+                                        </div>
+                                    </div>
 
-            {/* --- NEW: REVIEWS & RATINGS SECTION --- */}
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('book_details.review_comment_label')}</label>
+                                        <textarea
+                                            rows="4"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none bg-gray-50/50 transition-all focus:bg-white"
+                                            placeholder={t('book_details.review_comment_placeholder')}
+                                            value={userComment}
+                                            onChange={(e) => setUserComment(e.target.value)}
+                                        ></textarea>
+                                    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn">
-
-                {/* Left: Write a Review */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 h-fit">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <span className="bg-blue-100 text-blue-600 p-1.5 rounded-lg">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        </span>
-                        Write a Review
-                    </h3>
-
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Tap stars to rate</label>
-                        <div className="bg-gray-50 p-3 rounded-xl border border-gray-200 w-fit">
-                            <StarRating rating={userRating} onRate={setUserRating} editable={true} />
+                                    <button
+                                        type="submit"
+                                        disabled={submittingReview || userRating === 0}
+                                        className="w-full py-3.5 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold rounded-xl hover:from-gray-800 hover:to-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center justify-center"
+                                    >
+                                        {submittingReview ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                                                {t('book_details.btn_posting')}
+                                            </>
+                                        ) : t('book_details.btn_post_review')}
+                                    </button>
+                                </form>
+                            )}
                         </div>
                     </div>
 
-                    <div className="mb-4">
-                        <textarea
-                            className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                            rows="4"
-                            placeholder="What did you think about this book?"
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                        />
-                    </div>
+                    {/* Community Reviews List */}
+                    <div className="lg:col-span-2">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-2xl font-bold text-gray-900">{t('book_details.community_feedback')}</h3>
+                            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                {t(reviews.length === 1 ? 'book_details.reviews_count' : 'book_details.reviews_count_plural', { count: reviews.length })}
+                            </span>
+                        </div>
 
-                    <button
-                        onClick={handleSubmitReview}
-                        disabled={userRating === 0}
-                        className={`w-full py-3 rounded-xl font-bold text-white transition-colors shadow-md ${
-                            userRating === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                        }`}
-                    >
-                        Submit Review
-                    </button>
-                </div>
-
-                {/* Right: Community Reviews */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                        <span className="bg-purple-100 text-purple-600 p-1.5 rounded-lg">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        </span>
-                        Community Reviews ({reviews.length})
-                    </h3>
-
-                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                         {reviews.length === 0 ? (
-                            <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                                <p className="text-gray-500 italic">No reviews yet.</p>
-                                <p className="text-sm text-gray-400 mt-1">Be the first to rate this book!</p>
+                            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-10 text-center border border-gray-200">
+                                <div className="w-16 h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <MessageSquare className="w-8 h-8 text-gray-400" />
+                                </div>
+                                <h4 className="text-gray-900 font-bold mb-2">{t('book_details.no_reviews_title')}</h4>
+                                <p className="text-gray-500 max-w-md mx-auto">
+                                    {t('book_details.no_reviews_msg')}
+                                </p>
                             </div>
                         ) : (
-                            reviews.map((review) => (
-                                <div key={review.id} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div>
-                                            <span className="font-bold text-gray-800">{review.username}</span>
-                                            <div className="flex mt-1">
-                                                <StarRating rating={review.rating} />
+                            <div className="space-y-4">
+                                {reviews.map((review) => (
+                                    <div key={review.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex items-center">
+                                                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
+                                                    {review.username.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className="ml-3">
+                                                    <p className="font-bold text-gray-900 text-sm">
+                                                        {review.username === currentUsername ? t('book_details.you') : review.username}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {new Date(review.date).toLocaleDateString('en-US', {
+                                                            year: 'numeric',
+                                                            month: 'short',
+                                                            day: 'numeric'
+                                                        })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star
+                                                        key={i}
+                                                        className={`w-4 h-4 ${i < review.rating ? "text-yellow-400 fill-current" : "text-gray-200"}`}
+                                                    />
+                                                ))}
                                             </div>
                                         </div>
-                                        <span className="text-xs text-gray-400 font-mono">
-                                            {new Date(review.date).toLocaleDateString()}
-                                        </span>
+                                        {review.comment && (
+                                            <div className="mt-3 text-gray-600 text-sm leading-relaxed bg-gray-50/50 p-4 rounded-lg border border-gray-100">
+                                                "{review.comment}"
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="text-gray-600 text-sm mt-2 leading-relaxed">
-                                        {review.comment || <span className="italic text-gray-400">No comment provided.</span>}
-                                    </p>
-                                </div>
-                            ))
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* CONFIRMATION MODAL (UNCHANGED) */}
-            {showModal && (
-                <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
+            {/* --- BEAUTIFUL ALERT MODAL --- */}
+            {showAlert && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn">
-                        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white text-center">
-                            <h3 className="text-2xl font-bold">Confirm Rental</h3>
-                        </div>
-                        <div className="p-8">
-                            <div className="flex justify-between mb-6 border-b pb-4">
-                                <span className="font-bold text-gray-700">{book.title}</span>
-                                <span className="font-bold text-blue-600">$5.00</span>
+                        {/* Modal Header */}
+                        <div className={`p-6 text-white text-center ${
+                            alertType === 'success'
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                                : alertType === 'error'
+                                    ? 'bg-gradient-to-r from-red-500 to-rose-600'
+                                    : alertType === 'warning'
+                                        ? 'bg-gradient-to-r from-amber-500 to-orange-600'
+                                        : alertType === 'confirm'
+                                            ? 'bg-gradient-to-r from-blue-500 to-purple-600'
+                                            : 'bg-gradient-to-r from-blue-500 to-indigo-600'
+                        }`}>
+                            <div className="flex items-center justify-center gap-3 mb-2">
+                                {alertType === 'success' ? (
+                                    <CheckCircle className="h-8 w-8 text-white" />
+                                ) : alertType === 'error' ? (
+                                    <AlertTriangle className="h-8 w-8 text-white" />
+                                ) : alertType === 'warning' ? (
+                                    <AlertCircle className="h-8 w-8 text-white" />
+                                ) : alertType === 'confirm' ? (
+                                    <Info className="h-8 w-8 text-white" />
+                                ) : (
+                                    <Info className="h-8 w-8 text-white" />
+                                )}
+                                <h3 className="text-2xl font-bold">{alertTitle}</h3>
                             </div>
-                            <div className="flex gap-4">
-                                <button onClick={() => setShowModal(false)} className="flex-1 py-3 border rounded-xl hover:bg-gray-50">Cancel</button>
-                                <button onClick={handleConfirmRent} disabled={renting} className="flex-1 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex justify-center">
-                                    {renting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : "Pay & Read"}
-                                </button>
+                            <button
+                                onClick={hideAlert}
+                                className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-8 text-center">
+                            <p className="text-gray-700 mb-8 leading-relaxed">{alertMessage}</p>
+
+                            {/* Action Buttons */}
+                            <div className={`flex gap-3 ${alertType === 'confirm' ? '' : 'justify-center'}`}>
+                                {alertType === 'confirm' ? (
+                                    <>
+                                        <button
+                                            onClick={hideAlert}
+                                            className="flex-1 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
+                                        >
+                                            <X className="w-4 h-4" />
+                                            {t('alerts.btn_cancel')}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (window.confirmCallback) {
+                                                    window.confirmCallback();
+                                                }
+                                                hideAlert();
+                                            }}
+                                            className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                                        >
+                                            <CheckCircle className="w-4 h-4" />
+                                            {t('alerts.btn_confirm')}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={hideAlert}
+                                        className={`px-12 py-3 font-bold rounded-xl transition-all duration-300 ${
+                                            alertType === 'success'
+                                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700'
+                                                : alertType === 'error'
+                                                    ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700'
+                                                    : alertType === 'warning'
+                                                        ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700'
+                                                        : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
+                                        }`}
+                                    >
+                                        {t('alerts.btn_continue')}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             )}
+
+            {/* Add CSS for fade-in animation */}
+            <style jsx>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.3s ease-out;
+                }
+            `}</style>
         </div>
     );
 };

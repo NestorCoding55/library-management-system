@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap; // Import HashMap
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,10 +31,11 @@ public class ReviewController {
     @PostMapping("/add")
     public ResponseEntity<?> addReview(@RequestBody ReviewRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        // The token stores the USERNAME, not the email
+        String username = auth.getName();
 
-        // This line will now work because we added findByEmail to the interface
-        User user = userRepository.findByEmail(email)
+        // FIX: Use findByUsername, not findByEmail
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Book book = bookRepository.findById(request.getBookId())
@@ -62,7 +63,6 @@ public class ReviewController {
 
         List<Map<String, Object>> response = reviews.stream()
                 .map(r -> {
-                    // Using HashMap instead of Map.of() fixes the strict type inference error
                     Map<String, Object> map = new HashMap<>();
                     map.put("id", r.getId());
                     map.put("rating", r.getRating());

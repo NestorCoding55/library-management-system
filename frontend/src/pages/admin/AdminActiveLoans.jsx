@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 const AdminActiveLoans = () => {
+    const { t } = useTranslation();
     const [loans, setLoans] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -19,17 +21,16 @@ const AdminActiveLoans = () => {
             setLoans(response.data);
         } catch (error) {
             console.error("Error fetching loans:", error);
-            alert("Failed to load active loans.");
+            alert(t('admin.loans_fetch_error', 'Failed to load active loans.'));
         } finally {
             setLoading(false);
         }
     };
 
-    // Helper to calculate status based on date
     const getStatus = (expiryDate) => {
         const now = new Date();
         const end = new Date(expiryDate);
-        return end > now ? "Active" : "Expired";
+        return end > now ? t('admin.loan_status_active', 'Active') : t('admin.loan_status_expired', 'Expired');
     };
 
     const formatDate = (dateString) => {
@@ -38,7 +39,7 @@ const AdminActiveLoans = () => {
         });
     };
 
-    if (loading) return <div className="text-center py-20">Loading rentals...</div>;
+    if (loading) return <div className="text-center py-20">{t('admin.loading_rentals', 'Loading rentals...')}</div>;
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
@@ -46,11 +47,11 @@ const AdminActiveLoans = () => {
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800">Active Digital Rentals</h1>
-                        <p className="text-gray-500 mt-1">Monitor currently borrowed books and expiration times.</p>
+                        <h1 className="text-3xl font-bold text-gray-800">{t('admin.loans_title', 'Active Digital Rentals')}</h1>
+                        <p className="text-gray-500 mt-1">{t('admin.loans_subtitle', 'Monitor currently borrowed books and expiration times.')}</p>
                     </div>
                     <Link to="/admin/dashboard" className="text-blue-600 hover:underline">
-                        ← Back to Dashboard
+                        ← {t('admin.back_to_dashboard', 'Back to Dashboard')}
                     </Link>
                 </div>
 
@@ -59,19 +60,19 @@ const AdminActiveLoans = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                         <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <th className="py-4 px-6 font-bold">User</th>
-                            <th className="py-4 px-6 font-bold">Book Title</th>
-                            <th className="py-4 px-6 font-bold">Rented On</th>
-                            <th className="py-4 px-6 font-bold">Expires</th>
-                            <th className="py-4 px-6 font-bold">Price</th>
-                            <th className="py-4 px-6 font-bold">Status</th>
+                            <th className="py-4 px-6 font-bold">{t('admin.loan_table_user', 'User')}</th>
+                            <th className="py-4 px-6 font-bold">{t('admin.loan_table_book', 'Book Title')}</th>
+                            <th className="py-4 px-6 font-bold">{t('admin.loan_table_date', 'Rented On')}</th>
+                            <th className="py-4 px-6 font-bold">{t('admin.loan_table_expiry', 'Expires')}</th>
+                            <th className="py-4 px-6 font-bold">{t('admin.loan_table_price', 'Price')}</th>
+                            <th className="py-4 px-6 font-bold">{t('admin.loan_table_status', 'Status')}</th>
                         </tr>
                         </thead>
                         <tbody className="text-gray-600 text-sm">
                         {loans.length === 0 ? (
                             <tr>
                                 <td colSpan="6" className="py-10 text-center text-gray-500">
-                                    No active rentals found.
+                                    {t('admin.no_active_rentals', 'No active rentals found.')}
                                 </td>
                             </tr>
                         ) : (
@@ -95,7 +96,7 @@ const AdminActiveLoans = () => {
                                         </td>
                                         <td className="py-4 px-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                    status === "Active"
+                                                    status === t('admin.loan_status_active', 'Active')
                                                         ? "bg-green-100 text-green-800"
                                                         : "bg-red-100 text-red-800"
                                                 }`}>

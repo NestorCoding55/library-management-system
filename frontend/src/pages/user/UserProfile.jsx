@@ -1,10 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Clock } from "lucide-react";
 import { Eye, EyeOff, CheckCircle, XCircle, AlertCircle, Camera, ShieldCheck, AlertTriangle, UserCheck } from "lucide-react";
 
 const UserProfile = () => {
+    const { t } = useTranslation();
+
     // --- STATE ---
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -85,16 +88,22 @@ const UserProfile = () => {
         }
     };
 
-    // --- HANDLE FILE UPLOAD (No cooldown, AI scanning only) ---
     // --- HANDLE FILE UPLOAD ---
     const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // ... (File type/size checks are fine) ...
+        // File type validation
+        if (!file.type.startsWith('image/')) {
+            showAlertMessage(t('profile.upload_error'), t('profile.invalid_image'), "error");
+            return;
+        }
 
-        // REMOVED: if (daysRemaining > 0) { alert(...) return; }
-        // We allow upload even if daysRemaining > 0
+        // File size validation (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showAlertMessage(t('profile.upload_error'), t('profile.file_too_large'), "error");
+            return;
+        }
 
         setIsAiScanning(true);
 
@@ -111,12 +120,12 @@ const UserProfile = () => {
             });
 
             setUser(res.data);
-            showAlertMessage("Success!", "Profile picture updated successfully!", "success");
+            showAlertMessage(t('profile.success'), t('profile.upload_success'), "success");
 
         } catch (err) {
             console.error(err);
-            const errorMsg = err.response?.data?.message || "Upload failed.";
-            showAlertMessage("Upload Failed", errorMsg, "error");
+            const errorMsg = err.response?.data?.message || t('profile.upload_failed');
+            showAlertMessage(t('profile.upload_error'), errorMsg, "error");
         } finally {
             setIsAiScanning(false);
             if(fileInputRef.current) fileInputRef.current.value = "";
@@ -142,7 +151,7 @@ const UserProfile = () => {
         }
 
         if (username.length < 3) {
-            setUsernameError("Username must be at least 3 characters");
+            setUsernameError(t('profile.username_min_length'));
             setIsUsernameAvailable(false);
             return;
         }
@@ -156,11 +165,10 @@ const UserProfile = () => {
                 setUsernameError("");
             } else {
                 setIsUsernameAvailable(false);
-                setUsernameError("Username is already taken!");
+                setUsernameError(t('profile.username_taken'));
             }
         } catch (error) {
-            console.error("Username check failed (backend might be offline or missing endpoint)", error);
-            // FIX: Don't show an error to the user, just let them try to submit
+            console.error("Username check failed", error);
             setIsUsernameAvailable(null);
             setUsernameError("");
         } finally {
@@ -190,14 +198,13 @@ const UserProfile = () => {
         setUpdateError("");
 
         if (editFormData.newPassword !== editFormData.confirmPassword) {
-            setUpdateError("New passwords do not match!");
+            setUpdateError(t('profile.passwords_mismatch'));
             setUpdateLoading(false);
             return;
         }
 
-        // FIX: Only block if explicitly FALSE (Taken). If null (unchecked), let it pass.
         if (editFormData.username !== user?.username && isUsernameAvailable === false) {
-            setUpdateError("Username is not available.");
+            setUpdateError(t('profile.username_taken'));
             setUpdateLoading(false);
             return;
         }
@@ -210,7 +217,7 @@ const UserProfile = () => {
 
             if (editFormData.newPassword) {
                 if (!editFormData.currentPassword) {
-                    setUpdateError("Current password is required");
+                    setUpdateError(t('profile.current_password_required'));
                     setUpdateLoading(false);
                     return;
                 }
@@ -225,24 +232,22 @@ const UserProfile = () => {
             setUser(res.data);
             setShowEditModal(false);
 
-            showAlertMessage("Success!", "Profile updated successfully!", "success");
+            showAlertMessage(t('profile.success'), t('profile.update_success'), "success");
 
             setEditFormData(prev => ({ ...prev, currentPassword: "", newPassword: "", confirmPassword: "" }));
 
         } catch (err) {
             if (err.response?.status === 409) {
-                setUpdateError("Username is already taken.");
+                setUpdateError(t('profile.username_taken'));
             } else if (err.response?.status === 429) {
-                setUpdateError("Too many update attempts. Please try again later.");
+                setUpdateError(t('profile.too_many_attempts'));
             } else {
-                setUpdateError(err.response?.data?.message || "Update failed. Wait 30 days in order to update profile.");
+                setUpdateError(err.response?.data?.message || t('profile.update_failed'));
             }
         } finally {
             setUpdateLoading(false);
         }
     };
-
-
 
     const handleCloseModal = () => {
         setShowEditModal(false);
@@ -257,13 +262,12 @@ const UserProfile = () => {
         });
     };
 
-
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
                 <div className="flex flex-col items-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
-                    <p className="mt-4 text-gray-600 font-medium">Loading your profile...</p>
+                    <p className="mt-4 text-gray-600 font-medium">{t('profile.loading')}</p>
                 </div>
             </div>
         );
@@ -274,8 +278,8 @@ const UserProfile = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Page Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
-                    <p className="text-gray-600">Manage your account and view your reading activity</p>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-2">{t('profile.title')}</h1>
+                    <p className="text-gray-600">{t('profile.subtitle')}</p>
                 </div>
 
                 {/* Profile Header Card */}
@@ -294,7 +298,7 @@ const UserProfile = () => {
                                         <div className="absolute inset-0 bg-black/60 z-10 flex flex-col items-center justify-center text-white">
                                             <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-400 border-t-transparent mb-2"></div>
                                             <span className="text-xs font-bold animate-pulse flex items-center">
-                                                <ShieldCheck className="w-3 h-3 mr-1"/> AI SCAN
+                                                <ShieldCheck className="w-3 h-3 mr-1"/> {t('profile.ai_scanning')}
                                             </span>
                                         </div>
                                     ) : null}
@@ -313,7 +317,7 @@ const UserProfile = () => {
                                     onClick={() => fileInputRef.current.click()}
                                     disabled={isAiScanning}
                                     className={`absolute bottom-2 right-2 ${isAiScanning ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} text-white p-2.5 rounded-full shadow-lg border-4 border-white transition-all transform hover:scale-110 cursor-pointer`}
-                                    title="Change Profile Picture"
+                                    title={t('profile.change_picture')}
                                 >
                                     <Camera className="w-5 h-5" />
                                 </button>
@@ -344,7 +348,7 @@ const UserProfile = () => {
                             <div className="flex flex-wrap gap-3">
                                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-green-50 to-green-100 text-green-800 border border-green-200">
                                     <UserCheck className="w-4 h-4 mr-2" />
-                                    Active Member
+                                    {t('profile.active_member')}
                                 </span>
                                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 border border-blue-200">
                                     <ShieldCheck className="w-4 h-4 mr-2" />
@@ -355,10 +359,12 @@ const UserProfile = () => {
 
                         <div className="mt-6 pt-6 border-t border-gray-200">
                             <p className="text-sm text-gray-500">
-                                <span className="font-medium">Member since:</span> {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
+                                <span className="font-medium">{t('profile.member_since')}:</span> {t('profile.joined', {
+                                date: new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })
                             })}
                             </p>
                         </div>
@@ -375,28 +381,28 @@ const UserProfile = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                 </div>
-                                Account Details
+                                {t('profile.account_details')}
                             </h2>
                             <button
                                 onClick={() => setShowEditModal(true)}
                                 className="text-sm text-blue-600 hover:text-blue-800 font-medium bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors"
                             >
-                                Edit Profile
+                                {t('profile.btn_edit')}
                             </button>
                         </div>
 
                         <div className="space-y-4">
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div>
-                                    <p className="text-sm text-gray-500">User ID</p>
+                                    <p className="text-sm text-gray-500">{t('profile.user_id')}</p>
                                     <p className="font-medium text-gray-900">{user?.id}</p>
                                 </div>
-                                <span className="text-xs font-mono bg-gray-100 px-3 py-1 rounded-full text-gray-600">Unique</span>
+                                <span className="text-xs font-mono bg-gray-100 px-3 py-1 rounded-full text-gray-600">{t('profile.unique')}</span>
                             </div>
 
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div>
-                                    <p className="text-sm text-gray-500">Username</p>
+                                    <p className="text-sm text-gray-500">{t('profile.label_username')}</p>
                                     <p className="font-medium text-gray-900">{user?.username}</p>
                                 </div>
                                 <CheckCircle className="w-5 h-5 text-green-500" />
@@ -404,7 +410,7 @@ const UserProfile = () => {
 
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div>
-                                    <p className="text-sm text-gray-500">Email Address</p>
+                                    <p className="text-sm text-gray-500">{t('profile.label_email')}</p>
                                     <p className="font-medium text-gray-900">{user?.email}</p>
                                 </div>
                                 <CheckCircle className="w-5 h-5 text-green-500" />
@@ -412,8 +418,8 @@ const UserProfile = () => {
 
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div>
-                                    <p className="text-sm text-gray-500">Account Status</p>
-                                    <p className="font-medium text-green-600">Verified & Active</p>
+                                    <p className="text-sm text-gray-500">{t('profile.account_status')}</p>
+                                    <p className="font-medium text-green-600">{t('profile.verified_active')}</p>
                                 </div>
                                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                             </div>
@@ -427,23 +433,23 @@ const UserProfile = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
                             </div>
-                            Reading Stats
+                            {t('profile.reading_stats')}
                         </h2>
 
                         <div className="space-y-6">
                             <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
                                 <div className="text-4xl font-bold text-blue-600 mb-2">{historyCount}</div>
-                                <p className="text-sm text-blue-700 font-medium">Books Read</p>
+                                <p className="text-sm text-blue-700 font-medium">{t('profile.stat_read')}</p>
                             </div>
 
                             <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200">
                                 <div className="text-4xl font-bold text-purple-600 mb-2">{loanCount}</div>
-                                <p className="text-sm text-purple-700 font-medium">Current Loans</p>
+                                <p className="text-sm text-purple-700 font-medium">{t('profile.stat_active')}</p>
                             </div>
 
                             <div className="text-center p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border border-indigo-200">
                                 <div className="text-4xl font-bold text-indigo-600 mb-2">0</div>
-                                <p className="text-sm text-indigo-700 font-medium">Books Saved</p>
+                                <p className="text-sm text-indigo-700 font-medium">{t('profile.books_saved')}</p>
                             </div>
                         </div>
 
@@ -455,7 +461,7 @@ const UserProfile = () => {
                                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                                 </svg>
-                                Explore Books
+                                {t('profile.explore_books')}
                             </span>
                         </button>
                     </div>
@@ -463,7 +469,7 @@ const UserProfile = () => {
 
                 {/* Quick Actions */}
                 <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-800 mb-6">Quick Actions</h2>
+                    <h2 className="text-xl font-bold text-gray-800 mb-6">{t('profile.quick_actions')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <button
                             onClick={() => setShowEditModal(true)}
@@ -476,8 +482,8 @@ const UserProfile = () => {
                                     </svg>
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-medium text-gray-900">Change Password</p>
-                                    <p className="text-sm text-gray-500">Update your security</p>
+                                    <p className="font-medium text-gray-900">{t('profile.change_password')}</p>
+                                    <p className="text-sm text-gray-500">{t('profile.update_security')}</p>
                                 </div>
                             </div>
                         </button>
@@ -493,13 +499,13 @@ const UserProfile = () => {
                                     </svg>
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-bold text-blue-900">Open My Library</p>
-                                    <p className="text-sm text-blue-700">Access your rented books</p>
+                                    <p className="font-bold text-blue-900">{t('profile.open_library')}</p>
+                                    <p className="text-sm text-blue-700">{t('profile.access_rented')}</p>
                                 </div>
                             </div>
                         </button>
 
-                        <button className="p-4 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 group">
+                        <button onClick={() => navigate('/Support')} className="p-4 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 group">
                             <div className="flex items-center">
                                 <div className="mr-3 p-2 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors duration-200">
                                     <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -507,8 +513,8 @@ const UserProfile = () => {
                                     </svg>
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-medium text-gray-900">Support</p>
-                                    <p className="text-sm text-gray-500">Get help & contact</p>
+                                    <p className="font-medium text-gray-900">{t('profile.support')}</p>
+                                    <p className="text-sm text-gray-500">{t('profile.get_help')}</p>
                                 </div>
                             </div>
                         </button>
@@ -521,7 +527,7 @@ const UserProfile = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn max-h-[90vh] overflow-y-auto">
                         <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white text-center">
-                            <h3 className="text-2xl font-bold">Edit Profile</h3>
+                            <h3 className="text-2xl font-bold">{t('profile.edit_profile')}</h3>
                         </div>
 
                         {/* --- SHOW FORM (No cooldown check) --- */}
@@ -533,7 +539,7 @@ const UserProfile = () => {
                             )}
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('profile.label_username')}</label>
                                 <input
                                     type="text"
                                     name="username"
@@ -550,7 +556,7 @@ const UserProfile = () => {
                                     {usernameLoading ? (
                                         <div className="flex items-center text-sm text-gray-500">
                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
-                                            Checking username...
+                                            {t('profile.checking_username')}
                                         </div>
                                     ) : usernameError ? (
                                         <div className="flex items-center text-sm text-red-600">
@@ -560,11 +566,11 @@ const UserProfile = () => {
                                     ) : isUsernameAvailable === true ? (
                                         <div className="flex items-center text-sm text-green-600">
                                             <CheckCircle className="w-4 h-4 mr-1" />
-                                            Username available!
+                                            {t('profile.username_available')}
                                         </div>
                                     ) : editFormData.username !== user?.username && editFormData.username.length > 0 && (
                                         <div className="text-sm text-gray-500">
-                                            Enter at least 3 characters
+                                            {t('profile.enter_3_chars')}
                                         </div>
                                     )}
                                 </div>
@@ -573,7 +579,7 @@ const UserProfile = () => {
                             <div className="border-t pt-4 mt-4">
                                 <div className="flex items-center gap-2 mb-3">
                                     <AlertCircle className="w-4 h-4 text-gray-500" />
-                                    <p className="text-xs text-gray-500 uppercase font-bold">Change Password (Optional)</p>
+                                    <p className="text-xs text-gray-500 uppercase font-bold">{t('profile.change_password_optional')}</p>
                                 </div>
 
                                 <div className="space-y-3">
@@ -582,7 +588,7 @@ const UserProfile = () => {
                                         <input
                                             type={showCurrentPassword ? "text" : "password"}
                                             name="currentPassword"
-                                            placeholder="Current Password"
+                                            placeholder={t('profile.label_current_pass')}
                                             value={editFormData.currentPassword}
                                             onChange={handleEditChange}
                                             className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
@@ -605,7 +611,7 @@ const UserProfile = () => {
                                         <input
                                             type={showNewPassword ? "text" : "password"}
                                             name="newPassword"
-                                            placeholder="New Password"
+                                            placeholder={t('profile.label_new_pass')}
                                             value={editFormData.newPassword}
                                             onChange={handleEditChange}
                                             className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm"
@@ -626,7 +632,7 @@ const UserProfile = () => {
                                     {/* Password Requirements */}
                                     {editFormData.newPassword && (
                                         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                            <p className="text-xs font-medium text-gray-700 mb-2">Password Requirements:</p>
+                                            <p className="text-xs font-medium text-gray-700 mb-2">{t('profile.password_requirements')}:</p>
                                             <div className="space-y-1">
                                                 <div className="flex items-center text-xs">
                                                     {passwordRequirements.length ? (
@@ -635,7 +641,7 @@ const UserProfile = () => {
                                                         <XCircle className="w-3 h-3 text-red-500 mr-2" />
                                                     )}
                                                     <span className={passwordRequirements.length ? "text-green-600" : "text-gray-600"}>
-                                                        At least 8 characters
+                                                        {t('profile.requirement_length')}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center text-xs">
@@ -645,7 +651,7 @@ const UserProfile = () => {
                                                         <XCircle className="w-3 h-3 text-red-500 mr-2" />
                                                     )}
                                                     <span className={passwordRequirements.uppercase ? "text-green-600" : "text-gray-600"}>
-                                                        At least one uppercase letter
+                                                        {t('profile.requirement_uppercase')}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center text-xs">
@@ -655,7 +661,7 @@ const UserProfile = () => {
                                                         <XCircle className="w-3 h-3 text-red-500 mr-2" />
                                                     )}
                                                     <span className={passwordRequirements.lowercase ? "text-green-600" : "text-gray-600"}>
-                                                        At least one lowercase letter
+                                                        {t('profile.requirement_lowercase')}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center text-xs">
@@ -665,7 +671,7 @@ const UserProfile = () => {
                                                         <XCircle className="w-3 h-3 text-red-500 mr-2" />
                                                     )}
                                                     <span className={passwordRequirements.number ? "text-green-600" : "text-gray-600"}>
-                                                        At least one number
+                                                        {t('profile.requirement_number')}
                                                     </span>
                                                 </div>
                                             </div>
@@ -677,7 +683,7 @@ const UserProfile = () => {
                                         <input
                                             type={showConfirmPassword ? "text" : "password"}
                                             name="confirmPassword"
-                                            placeholder="Confirm New Password"
+                                            placeholder={t('profile.label_confirm_pass')}
                                             value={editFormData.confirmPassword}
                                             onChange={handleEditChange}
                                             className={`w-full px-4 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm ${
@@ -706,12 +712,12 @@ const UserProfile = () => {
                                             {editFormData.newPassword === editFormData.confirmPassword ? (
                                                 <div className="flex items-center text-sm text-green-600">
                                                     <CheckCircle className="w-4 h-4 mr-1" />
-                                                    Passwords match!
+                                                    {t('profile.passwords_match')}
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center text-sm text-red-600">
                                                     <XCircle className="w-4 h-4 mr-1" />
-                                                    Passwords do not match
+                                                    {t('profile.passwords_mismatch')}
                                                 </div>
                                             )}
                                         </div>
@@ -725,11 +731,10 @@ const UserProfile = () => {
                                     onClick={handleCloseModal}
                                     className="flex-1 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
                                 >
-                                    Cancel
+                                    {t('profile.cancel')}
                                 </button>
                                 <button
                                     type="submit"
-                                    // FIX: Only disable if explicitly false
                                     disabled={updateLoading || (editFormData.username !== user?.username && isUsernameAvailable === false)}
                                     className={`flex-1 py-3 font-semibold rounded-xl flex justify-center items-center transition-all ${
                                         updateLoading || (editFormData.username !== user?.username && isUsernameAvailable === false)
@@ -739,7 +744,7 @@ const UserProfile = () => {
                                 >
                                     {updateLoading ? (
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                                    ) : "Save Changes"}
+                                    ) : t('profile.btn_save')}
                                 </button>
                             </div>
                         </form>
@@ -767,14 +772,14 @@ const UserProfile = () => {
                                 ) : (
                                     <ShieldCheck className="h-8 w-8 text-white" />
                                 )}
-                                <h3 className="text-2xl font-bold">{alertMessage.title || "Alert"}</h3>
+                                <h3 className="text-2xl font-bold">{alertMessage.title || t('profile.alert')}</h3>
                             </div>
                             <p className="opacity-90">
                                 {alertMessage.type === 'success'
-                                    ? "Update successful!"
+                                    ? t('profile.success')
                                     : alertMessage.type === 'error'
-                                        ? "Something went wrong"
-                                        : "Notice"
+                                        ? t('profile.error')
+                                        : t('profile.notice')
                                 }
                             </p>
                         </div>
@@ -788,7 +793,7 @@ const UserProfile = () => {
                                     </div>
                                     <h4 className="text-xl font-bold text-gray-900 mb-3">{alertMessage.message}</h4>
                                     <p className="text-gray-600 mb-6">
-                                        Your changes have been saved successfully.
+                                        {t('profile.changes_saved')}
                                     </p>
                                 </>
                             ) : alertMessage.type === 'error' ? (
@@ -796,7 +801,7 @@ const UserProfile = () => {
                                     <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 mb-6">
                                         <AlertTriangle className="h-10 w-10 text-red-500" />
                                     </div>
-                                    <h4 className="text-xl font-bold text-gray-900 mb-3">Oops!</h4>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-3">{t('profile.oops')}</h4>
                                     <p className="text-gray-600 mb-6">{alertMessage.message}</p>
                                 </>
                             ) : null}
@@ -812,7 +817,7 @@ const UserProfile = () => {
                                             : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
                                 }`}
                             >
-                                {alertMessage.type === 'success' ? 'Continue' : 'Close'}
+                                {alertMessage.type === 'success' ? t('profile.continue') : t('profile.close')}
                             </button>
                         </div>
                     </div>

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 const ForgotPassword = () => {
+    const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -30,17 +32,17 @@ const ForgotPassword = () => {
                             </svg>
                         ) : (
                             <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 14l-1 1-1 1H6v-1a2 2 0 00-2-2 2 2 0 012-2 11.953 11.953 0 014.047-8.156Q11.5 3 13 3a2 2 0 012 2zm7 0h2a2 2 0 012 2v3a2 2 0 01-2 2h-2v-2a2 2 0 012-2V9a2 2 0 01-2-2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 14l-1 1-1 1H6v-1a2 2 0 00-2-2 a2 2 0 012-2 11.953 11.953 0 014.047-8.156Q11.5 3 13 3a2 2 0 012 2zm7 0h2a2 2 0 012 2v3a2 2 0 01-2 2h-2v-2a2 2 0 012-2V9a2 2 0 01-2-2z" />
                             </svg>
                         )}
                     </div>
                     <h2 className="text-3xl font-bold text-gray-900">
-                        {isSubmitted ? "Check your email" : "Forgot Password?"}
+                        {isSubmitted ? t('forgot_password.success_title') : t('forgot_password.title')}
                     </h2>
                     <p className="mt-2 text-sm text-gray-600">
                         {isSubmitted
-                            ? `We have sent a password recovery code to ${email}`
-                            : "Enter your email address and we'll send you a code to reset your password."}
+                            ? t('forgot_password.success_msg', { email })
+                            : t('forgot_password.desc')}
                     </p>
                 </div>
 
@@ -49,7 +51,7 @@ const ForgotPassword = () => {
                     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                         <div className="rounded-md shadow-sm -space-y-px">
                             <label htmlFor="email-address" className="sr-only">
-                                Email address
+                                {t('forgot_password.label_email')}
                             </label>
                             <div className="relative group">
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
@@ -62,7 +64,7 @@ const ForgotPassword = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="relative w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                    placeholder="Enter your email address"
+                                    placeholder={t('forgot_password.placeholder_email')}
                                 />
                             </div>
                         </div>
@@ -80,10 +82,10 @@ const ForgotPassword = () => {
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            Sending...
+                                            {t('forgot_password.btn_submitting')}
                                         </>
                                     ) : (
-                                        "Send Reset Code"
+                                        t('forgot_password.btn_submit')
                                     )}
                                 </span>
                             </button>
@@ -93,7 +95,7 @@ const ForgotPassword = () => {
                     <div className="mt-8 space-y-6">
                         <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-center">
                             <p className="text-sm text-green-800 font-medium">
-                                If an account exists for {email}, you will receive a code shortly.
+                                {t('forgot_password.success_msg', { email })}
                             </p>
                         </div>
 
@@ -101,7 +103,7 @@ const ForgotPassword = () => {
                             onClick={() => setIsSubmitted(false)}
                             className="w-full text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors"
                         >
-                            Try a different email
+                            {t('forgot_password.try_different')}
                         </button>
                     </div>
                 )}
@@ -115,7 +117,7 @@ const ForgotPassword = () => {
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        Back to Login
+                        {t('forgot_password.back_login')}
                     </Link>
                 </div>
             </div>

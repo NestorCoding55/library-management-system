@@ -4,29 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="working on user functionality">
+    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="phase 4 complete">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/AdminController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/LoanController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/LoanController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/Book.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/Book.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/repository/LoanRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/repository/LoanRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/service/LoanService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/service/LoanService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/ReviewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/ReviewController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/config/SecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/AdminController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/AdminController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/LoanController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/LoanController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/UserController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/entity/User$UserBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/entity/User$UserBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/entity/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/entity/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/service/LoanService.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/service/LoanService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/ReviewController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/library/backend/controller/ReviewController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/StarRating.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/StarRating.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/About.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/About.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/BookDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/BookDetails.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Books.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Books.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Categories.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Categories.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ForgotPassword.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ForgotPassword.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Home.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Home.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Login.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Login.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Register.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Register.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/AdminActiveLoans.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/AdminActiveLoans.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/AdminDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/AdminDashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/ManageBooks.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/ManageBooks.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/ManageUsers.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/ManageUsers.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/user/MyBooks.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/user/MyBooks.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/user/UserProfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/user/UserProfile.jsx" afterDir="false" />
@@ -125,6 +126,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;Spring Boot.BackendApplication.executor&quot;: &quot;Run&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/nesto/projects/library-project-root/frontend/src/assets&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -196,6 +198,10 @@
       <workItem from="1767732636840" duration="24000" />
       <workItem from="1767732674871" duration="19000" />
       <workItem from="1767732809087" duration="3616000" />
+      <workItem from="1767736460324" duration="260000" />
+      <workItem from="1767832748336" duration="5962000" />
+      <workItem from="1767919746523" duration="1195000" />
+      <workItem from="1767991850994" duration="11215000" />
     </task>
     <task id="LOCAL-00001" summary="setting up backend and frontend">
       <option name="closed" value="true" />
@@ -269,7 +275,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767299746933</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="phase 4 complete">
+      <option name="closed" value="true" />
+      <created>1767736712948</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1767736712948</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -288,6 +302,7 @@
     <MESSAGE value="Day 4 done, working on backend register functionality" />
     <MESSAGE value="admin functionality" />
     <MESSAGE value="working on user functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="working on user functionality" />
+    <MESSAGE value="phase 4 complete" />
+    <option name="LAST_COMMIT_MESSAGE" value="phase 4 complete" />
   </component>
 </project>

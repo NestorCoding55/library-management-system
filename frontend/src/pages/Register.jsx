@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import authService from "../services/authService";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
+    const { t } = useTranslation();
+
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -87,13 +90,13 @@ const Register = () => {
 
         // Check if passwords match
         if (!passwordsMatch) {
-            alert("Passwords do not match. Please check and try again.");
+            alert(t('register.password_mismatch', "Passwords do not match. Please check and try again."));
             return;
         }
 
         // Block submit if password is weak
         if (strengthScore < 100) {
-            alert("Please ensure your password meets all requirements.");
+            alert(t('register.weak_password', "Please ensure your password meets all requirements."));
             return;
         }
 
@@ -109,7 +112,7 @@ const Register = () => {
             // Extract error message from response
             const errorMessage = error.response?.data?.message ||
                 error.response?.data?.error ||
-                "Registration failed. Please try again.";
+                t('register.registration_failed', "Registration failed. Please try again.");
 
             // Check for specific error types
             const lowerCaseMessage = errorMessage.toLowerCase();
@@ -120,7 +123,7 @@ const Register = () => {
                     lowerCaseMessage.includes("taken"))) {
                 setFieldErrors(prev => ({
                     ...prev,
-                    email: "This email is already registered. Please use a different email or try logging in."
+                    email: t('register.email_taken', "This email is already registered. Please use a different email or try logging in.")
                 }));
                 setServerError("");
             }
@@ -130,7 +133,7 @@ const Register = () => {
                     lowerCaseMessage.includes("taken"))) {
                 setFieldErrors(prev => ({
                     ...prev,
-                    username: "This username is already taken. Please choose a different username."
+                    username: t('register.username_taken', "This username is already taken. Please choose a different username.")
                 }));
                 setServerError("");
             }
@@ -138,7 +141,7 @@ const Register = () => {
                 lowerCaseMessage.includes("weak")) {
                 setFieldErrors(prev => ({
                     ...prev,
-                    password: "Password is too weak. Please ensure it meets all requirements."
+                    password: t('register.weak_password_error', "Password is too weak. Please ensure it meets all requirements.")
                 }));
                 setServerError("");
             }
@@ -195,39 +198,39 @@ const Register = () => {
 
                             {/* Success Message */}
                             <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                                Registration Successful! 🎉
+                                {t('register.success_title', "Registration Successful!")} 🎉
                             </h3>
                             <p className="text-gray-600 mb-6">
-                                Your account has been created successfully. You can now sign in to access all features.
+                                {t('register.success_message', "Your account has been created successfully. You can now sign in to access all features.")}
                             </p>
 
                             {/* Stats Preview */}
                             <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                                <p className="text-sm text-gray-500 mb-2">Your new account includes:</p>
+                                <p className="text-sm text-gray-500 mb-2">{t('register.account_includes', "Your new account includes:")}</p>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div className="flex items-center text-green-600">
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                         </svg>
-                                        Unlimited Access
+                                        {t('register.info_access')}
                                     </div>
                                     <div className="flex items-center text-green-600">
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                         </svg>
-                                        Personalized Feed
+                                        {t('register.personalized_feed', "Personalized Feed")}
                                     </div>
                                     <div className="flex items-center text-green-600">
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                         </svg>
-                                        Book Tracking
+                                        {t('register.book_tracking', "Book Tracking")}
                                     </div>
                                     <div className="flex items-center text-green-600">
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                         </svg>
-                                        24/7 Support
+                                        {t('register.support_247', "24/7 Support")}
                                     </div>
                                 </div>
                             </div>
@@ -241,12 +244,12 @@ const Register = () => {
                                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                     </svg>
-                                    Continue to Login
+                                    {t('register.continue_to_login', "Continue to Login")}
                                 </span>
                             </button>
 
                             <p className="text-sm text-gray-500">
-                                You will be redirected automatically in 5 seconds...
+                                {t('register.auto_redirect', "You will be redirected automatically in 5 seconds...")}
                             </p>
                         </div>
                     </div>
@@ -258,10 +261,10 @@ const Register = () => {
                     {/* Header Section */}
                     <div className="text-center mb-12">
                         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                            Join Our <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Library</span>
+                            {t('register.title')}
                         </h1>
                         <p className="text-gray-600 text-lg max-w-lg mx-auto">
-                            Create your account to access thousands of books, track your reading, and discover new adventures.
+                            {t('register.subtitle')}
                         </p>
                     </div>
 
@@ -287,7 +290,7 @@ const Register = () => {
                                 {/* Username Field */}
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Username
+                                        {t('register.label_username')}
                                     </label>
                                     <div className="relative group">
                                         <input
@@ -297,7 +300,7 @@ const Register = () => {
                                             onChange={handleChange}
                                             required
                                             className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 group-hover:border-blue-400 ${getInputBorderColor('username')}`}
-                                            placeholder="Enter your username"
+                                            placeholder={t('register.placeholder_username', "Enter your username")}
                                         />
                                         <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,7 +322,7 @@ const Register = () => {
                                 {/* Email Field */}
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Email Address
+                                        {t('register.label_email')}
                                     </label>
                                     <div className="relative group">
                                         <input
@@ -329,7 +332,7 @@ const Register = () => {
                                             onChange={handleChange}
                                             required
                                             className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 group-hover:border-blue-400 ${getInputBorderColor('email')}`}
-                                            placeholder="Enter your email"
+                                            placeholder={t('register.placeholder_email', "Enter your email")}
                                         />
                                         <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -351,7 +354,7 @@ const Register = () => {
                                 {/* Password Field */}
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Password
+                                        {t('register.label_password')}
                                     </label>
                                     <div className="relative group">
                                         <input
@@ -361,7 +364,7 @@ const Register = () => {
                                             onChange={handleChange}
                                             required
                                             className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 group-hover:border-blue-400 ${getInputBorderColor('password')}`}
-                                            placeholder="Create a strong password"
+                                            placeholder={t('register.placeholder_password', "Create a strong password")}
                                         />
                                         <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -411,19 +414,19 @@ const Register = () => {
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                                 <div className={`flex items-center space-x-2 ${passwordChecks.length ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
                                                     <span>{passwordChecks.length ? '✓' : '○'}</span>
-                                                    <span>12-24 Characters</span>
+                                                    <span>{t('register.req_length')}</span>
                                                 </div>
                                                 <div className={`flex items-center space-x-2 ${passwordChecks.nums ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
                                                     <span>{passwordChecks.nums ? '✓' : '○'}</span>
-                                                    <span>At least 5 Numbers</span>
+                                                    <span>{t('register.req_number')}</span>
                                                 </div>
                                                 <div className={`flex items-center space-x-2 ${passwordChecks.letters ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
                                                     <span>{passwordChecks.letters ? '✓' : '○'}</span>
-                                                    <span>At least 5 Letters</span>
+                                                    <span>{t('register.req_letter')}</span>
                                                 </div>
-                                                <div className={`flex items-center space-x-2 ${passwordChecks.special ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                                                <div className={`flex items-center space-x-2 ${passwordChecks.special ? 'text-green-600 font-medium' : 'text-gray500'}`}>
                                                     <span>{passwordChecks.special ? '✓' : '○'}</span>
-                                                    <span>1 Special Character</span>
+                                                    <span>{t('register.req_special')}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -433,7 +436,7 @@ const Register = () => {
                                 {/* Confirm Password Field */}
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Confirm Password
+                                        {t('register.label_confirm')}
                                     </label>
                                     <div className="relative group">
                                         <input
@@ -447,7 +450,7 @@ const Register = () => {
                                                     ? 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
                                                     : 'border-red-500 focus:border-red-500 focus:ring-red-200'
                                             }`}
-                                            placeholder="Confirm your password"
+                                            placeholder={t('register.placeholder_confirm', "Confirm your password")}
                                         />
                                         <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -480,14 +483,14 @@ const Register = () => {
                                                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    Passwords match
+                                                    {t('register.password_match', "Passwords match")}
                                                 </>
                                             ) : (
                                                 <>
                                                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    Passwords do not match
+                                                    {t('register.password_not_match', "Passwords do not match")}
                                                 </>
                                             )}
                                         </div>
@@ -503,13 +506,13 @@ const Register = () => {
                                         className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                     />
                                     <label htmlFor="terms" className="text-sm text-gray-600">
-                                        I agree to the{" "}
+                                        {t('register.terms_agreement', "I agree to the")}{" "}
                                         <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
-                                            Terms of Service
+                                            {t('register.terms_of_service', "Terms of Service")}
                                         </a>{" "}
-                                        and{" "}
+                                        {t('register.and', "and")}{" "}
                                         <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
-                                            Privacy Policy
+                                            {t('register.privacy_policy', "Privacy Policy")}
                                         </a>
                                     </label>
                                 </div>
@@ -527,10 +530,10 @@ const Register = () => {
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
-                                                Creating Account...
+                                                {t('register.btn_submitting', "Creating Account...")}
                                             </>
                                         ) : (
-                                            "Create Account"
+                                            t('register.btn_submit')
                                         )}
                                     </span>
                                 </button>
@@ -541,7 +544,7 @@ const Register = () => {
                                         <div className="w-full border-t border-gray-300"></div>
                                     </div>
                                     <div className="relative flex justify-center text-sm">
-                                        <span className="px-4 bg-white text-gray-500">Already have an account?</span>
+                                        <span className="px-4 bg-white text-gray-500">{t('register.already_account')}</span>
                                     </div>
                                 </div>
 
@@ -554,7 +557,7 @@ const Register = () => {
                                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                         </svg>
-                                        Sign in to your account
+                                        {t('register.link_login')}
                                     </Link>
                                 </div>
                             </form>
@@ -565,15 +568,15 @@ const Register = () => {
                             <div className="grid grid-cols-3 gap-4 text-center">
                                 <div>
                                     <div className="text-xl font-bold text-blue-600">10k+</div>
-                                    <div className="text-sm text-gray-600">Books Available</div>
+                                    <div className="text-sm text-gray-600">{t('home.stat_books')}</div>
                                 </div>
                                 <div>
                                     <div className="text-xl font-bold text-purple-600">24/7</div>
-                                    <div className="text-sm text-gray-600">Access Anywhere</div>
+                                    <div className="text-sm text-gray-600">{t('register.access_anywhere', "Access Anywhere")}</div>
                                 </div>
                                 <div>
-                                    <div className="text-xl font-bold text-indigo-600">Free</div>
-                                    <div className="text-sm text-gray-600">Forever</div>
+                                    <div className="text-xl font-bold text-indigo-600">{t('register.info_free')}</div>
+                                    <div className="text-sm text-gray-600">{t('register.forever', "Forever")}</div>
                                 </div>
                             </div>
                         </div>
@@ -581,7 +584,7 @@ const Register = () => {
 
                     {/* Additional Information */}
                     <div className="mt-8 text-center text-gray-500 text-sm">
-                        <p>By registering, you'll get access to personalized recommendations, reading lists, and more.</p>
+                        <p>{t('register.disclaimer')}</p>
                     </div>
                 </div>
             </div>

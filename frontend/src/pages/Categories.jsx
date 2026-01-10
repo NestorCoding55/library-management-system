@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Categories = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     useEffect(() => { window.scrollTo(0, 0); }, [location]);
 
@@ -10,22 +12,22 @@ const Categories = () => {
     const [error, setError] = useState(null);
 
     const fetchCategories = async () => {
-        console.log("--- STARTING FETCH ---"); // Debug Log
+        console.log("--- STARTING FETCH ---");
         try {
             setLoading(true);
             const url = "http://localhost:8080/api/books/categories";
 
-            console.log("Fetching from:", url); // Debug Log
+            console.log("Fetching from:", url);
             const response = await fetch(url);
 
-            console.log("Response Status:", response.status); // Debug Log
+            console.log("Response Status:", response.status);
 
             if (!response.ok) {
                 throw new Error(`Server Error: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log("Data Received:", data); // Debug Log
+            console.log("Data Received:", data);
 
             // Check if data is actually an array
             if (Array.isArray(data)) {
@@ -37,9 +39,8 @@ const Categories = () => {
             }
 
         } catch (err) {
-            console.error("FETCH FAILED:", err); // Debug Log
+            console.error("FETCH FAILED:", err);
             setError(err.message);
-            // We removed the dummy data fallback so we can see the real error!
         } finally {
             setLoading(false);
         }
@@ -61,26 +62,24 @@ const Categories = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center mb-16">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">Browse by Category</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('categories.title', "Browse by Category")}</h1>
             </div>
 
             {loading && (
-                <div className="text-center py-20">Loading...</div>
+                <div className="text-center py-20">{t('categories.loading')}</div>
             )}
 
-            {/* This will show us exactly why it failed on screen */}
             {error && (
                 <div className="text-center bg-red-100 text-red-700 p-6 rounded-lg border border-red-300">
-                    <h3 className="font-bold text-xl">Error Loading Categories</h3>
+                    <h3 className="font-bold text-xl">{t('categories.error_title', "Error Loading Categories")}</h3>
                     <p>{error}</p>
-                    <p className="text-sm mt-2">Check the Console (F12) for more details.</p>
+                    <p className="text-sm mt-2">{t('categories.console_error', "Check the Console (F12) for more details.")}</p>
                 </div>
             )}
 
             {!loading && !error && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {categories.map((category, index) => (
-                        // NEW: We attach the category name to the URL
                         <Link
                             key={category.id}
                             to={`/books?category=${encodeURIComponent(category.name)}`}

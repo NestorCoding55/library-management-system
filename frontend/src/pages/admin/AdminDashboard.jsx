@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useTranslation } from 'react-i18next';
 
 const AdminDashboard = () => {
-    // We initialize these to 0
+    const { t } = useTranslation();
     const [stats, setStats] = useState({ totalBooks: 0, totalUsers: 0, activeLoans: 0 });
-    // NEW: Variable to hold raw data so you can see it on screen
     const [debugData, setDebugData] = useState(null);
     const navigate = useNavigate();
 
@@ -17,14 +17,10 @@ const AdminDashboard = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-                // 1. Save raw data to show on screen
                 setDebugData(response.data);
-
-                // 2. Try to map the data (We will fix this once we see the debug info)
                 setStats({
                     totalBooks: response.data.totalBooks || response.data.total_books || 0,
                     totalUsers: response.data.totalUsers || response.data.total_users || 0,
-                    // One of these usually works, but if not, the debug box will tell us why
                     activeLoans: response.data.activeLoans || response.data.active_loans || response.data.loanCount || response.data.count || 0
                 });
             } catch (error) {
@@ -52,24 +48,25 @@ const AdminDashboard = () => {
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="max-w-7xl mx-auto">
-                <h1 className="text-4xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mb-8">{t('admin.dashboard_title', 'Admin Dashboard')}</h1>
+                <p className="text-gray-600 mb-8">{t('admin.dashboard_subtitle', 'Overview & Statistics')}</p>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     <StatCard
-                        title="Total Books"
+                        title={t('admin.stat_books', 'Total Books')}
                         value={stats.totalBooks}
                         color="border-blue-500"
                         icon={<svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
                     />
                     <StatCard
-                        title="Total Users"
+                        title={t('admin.stat_users', 'Total Users')}
                         value={stats.totalUsers}
                         color="border-green-500"
                         icon={<svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
                     />
                     <StatCard
-                        title="Active Loans"
+                        title={t('admin.stat_loans', 'Active Loans')}
                         value={stats.activeLoans}
                         color="border-purple-500"
                         icon={<svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
@@ -77,7 +74,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Management Links */}
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Management</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('admin.management', 'Management')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                     {/* Manage Books */}
@@ -88,8 +85,8 @@ const AdminDashboard = () => {
                             </svg>
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600">Manage Books</h3>
-                            <p className="text-gray-500 text-sm">Add, Edit or Delete books</p>
+                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600">{t('admin.card_books_title', 'Manage Books')}</h3>
+                            <p className="text-gray-500 text-sm">{t('admin.card_books_desc', 'Add, edit, or remove books')}</p>
                         </div>
                     </Link>
 
@@ -101,8 +98,8 @@ const AdminDashboard = () => {
                             </svg>
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-green-600">Manage Users</h3>
-                            <p className="text-gray-500 text-sm">View and manage all users</p>
+                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-green-600">{t('admin.card_users_title', 'Manage Users')}</h3>
+                            <p className="text-gray-500 text-sm">{t('admin.card_users_desc', 'View and manage all users')}</p>
                         </div>
                     </Link>
 
@@ -114,15 +111,13 @@ const AdminDashboard = () => {
                             </svg>
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600">Active Loans</h3>
+                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600">{t('admin.card_loans_title', 'Active Loans')}</h3>
                             <p className="text-gray-500 text-sm">
-                                {stats.activeLoans} active loans monitoring
+                                {stats.activeLoans} {t('admin.card_loans_desc', 'active loans monitoring')}
                             </p>
                         </div>
                     </Link>
                 </div>
-
-
             </div>
         </div>
     );

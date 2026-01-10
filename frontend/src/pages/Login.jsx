@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import authService from "../services/authService";
 import { useNavigate, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         username: "",
         password: ""
@@ -12,7 +14,7 @@ const Login = () => {
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [gradientIndex, setGradientIndex] = useState(0);
-    const [rememberMe, setRememberMe] = useState(false); // Added for "Keep me signed in"
+    const [rememberMe, setRememberMe] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -57,7 +59,7 @@ const Login = () => {
             // Store in chosen storage
             storage.setItem("token", response.data.token);
             storage.setItem("role", response.data.role);
-            storage.setItem("username", formData.username); // Store the username too!
+            storage.setItem("username", formData.username);
 
             // Clear the other storage to avoid conflicts
             if (rememberMe) {
@@ -79,7 +81,7 @@ const Login = () => {
             window.location.reload();
 
         } catch (err) {
-            setError("Invalid username or password. Please try again.");
+            setError(t('login.error_message', "Invalid username or password. Please try again."));
         } finally {
             setIsSubmitting(false);
         }
@@ -96,7 +98,7 @@ const Login = () => {
                     <div className="absolute -inset-4 bg-white/5 blur-xl rounded-3xl"></div>
                     <div className="relative">
                         <h1 className="text-5xl font-bold text-white mb-3">Library<span className="text-blue-300"></span></h1>
-                        <p className="text-blue-200/80 text-lg">Your Gateway to Infinite Knowledge</p>
+                        <p className="text-blue-200/80 text-lg">{t('login.right_title')}</p>
                     </div>
                 </div>
 
@@ -110,8 +112,8 @@ const Login = () => {
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">1,000+ Books</h3>
-                                <p className="text-blue-200/80 text-lg">Digital and physical collection</p>
+                                <h3 className="text-2xl font-semibold text-white mb-2">1,000+ {t('home.stat_books')}</h3>
+                                <p className="text-blue-200/80 text-lg">{t('login.right_subtitle')}</p>
                             </div>
                         </div>
 
@@ -122,8 +124,8 @@ const Login = () => {
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">Secure Access</h3>
-                                <p className="text-blue-200/80 text-lg">Your reading data protected</p>
+                                <h3 className="text-2xl font-semibold text-white mb-2">{t('login.secure_access') || "Secure Access"}</h3>
+                                <p className="text-blue-200/80 text-lg">{t('login.protected_data') || "Your reading data protected"}</p>
                             </div>
                         </div>
 
@@ -134,8 +136,8 @@ const Login = () => {
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">Lightning Fast</h3>
-                                <p className="text-blue-200/80 text-lg">Instant access to all books</p>
+                                <h3 className="text-2xl font-semibold text-white mb-2">{t('login.fast_access') || "Lightning Fast"}</h3>
+                                <p className="text-blue-200/80 text-lg">{t('login.instant_access') || "Instant access to all books"}</p>
                             </div>
                         </div>
                     </div>
@@ -143,12 +145,12 @@ const Login = () => {
 
                 {/* Quote/Testimonial */}
                 <div className="bg-white/10 backdrop-blur-sm p-8 rounded-3xl border border-white/20 transform hover:scale-[1.02] transition-transform duration-300">
-                    <p className="text-white italic text-lg mb-4">"The best digital library experience I've ever had. Access to thousands of books right at my fingertips!"</p>
+                    <p className="text-white italic text-lg mb-4">{t('login.testimonial') || '"The best digital library experience I\'ve ever had. Access to thousands of books right at my fingertips!"'}</p>
                     <div className="flex items-center">
                         <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
                         <div className="ml-4">
                             <p className="text-white font-medium text-lg">Sarah Johnson</p>
-                            <p className="text-blue-200/80">Book Club Member</p>
+                            <p className="text-blue-200/80">{t('login.member') || "Book Club Member"}</p>
                         </div>
                     </div>
                 </div>
@@ -167,14 +169,14 @@ const Login = () => {
                             <svg className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
-                            Back to Home
+                            {t('login.back_home') || "Back to Home"}
                         </Link>
 
                         <h1 className="text-4xl font-bold text-white mb-3">
-                            Welcome Back<span className="text-blue-300">.</span>
+                            {t('login.welcome_back')}<span className="text-blue-300">.</span>
                         </h1>
                         <p className="text-blue-200/90">
-                            Sign in to continue your reading journey and access personalized recommendations.
+                            {t('login.subtitle')}
                         </p>
                     </div>
 
@@ -194,7 +196,7 @@ const Login = () => {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Username or Email
+                                    {t('login.label_username')}
                                 </label>
                                 <div className="relative group">
                                     <input
@@ -204,7 +206,7 @@ const Login = () => {
                                         onChange={handleChange}
                                         required
                                         className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                                        placeholder="Enter your username"
+                                        placeholder={t('login.placeholder_username')}
                                     />
                                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,13 +219,13 @@ const Login = () => {
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Password
+                                        {t('login.label_password')}
                                     </label>
                                     <Link
                                         to="/forgot-password"
                                         className="text-sm text-blue-600 hover:text-blue-800 font-medium hover:underline"
                                     >
-                                        Forgot password?
+                                        {t('login.forgot_password')}
                                     </Link>
                                 </div>
                                 <div className="relative group">
@@ -234,7 +236,7 @@ const Login = () => {
                                         onChange={handleChange}
                                         required
                                         className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 pr-12"
-                                        placeholder="Enter your password"
+                                        placeholder={t('login.placeholder_password')}
                                     />
                                     <button
                                         type="button"
@@ -265,7 +267,7 @@ const Login = () => {
                                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                     />
                                     <label htmlFor="remember" className="ml-2 text-sm text-gray-600">
-                                        Keep me signed in
+                                        {t('login.remember_me')}
                                     </label>
                                 </div>
                             </div>
@@ -282,14 +284,14 @@ const Login = () => {
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            Signing in...
+                                            {t('login.btn_submitting')}
                                         </>
                                     ) : (
                                         <>
                                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                             </svg>
-                                            Sign In
+                                            {t('login.btn_submit')}
                                         </>
                                     )}
                                 </span>
@@ -300,12 +302,12 @@ const Login = () => {
                         {/* Register Link */}
                         <div className="mt-8 pt-6 border-t border-gray-200 text-center">
                             <p className="text-gray-600">
-                                Don't have an account?{" "}
+                                {t('login.no_account')}{" "}
                                 <Link
                                     to="/register"
                                     className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                                 >
-                                    Create an account
+                                    {t('login.link_register')}
                                 </Link>
                             </p>
                         </div>
@@ -315,15 +317,15 @@ const Login = () => {
                     <div className="grid grid-cols-3 gap-4 text-center bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20">
                         <div className="transform hover:scale-105 transition-transform duration-200">
                             <div className="text-3xl font-bold text-blue-600 mb-1">50k+</div>
-                            <div className="text-sm font-medium text-gray-700">Active Readers</div>
+                            <div className="text-sm font-medium text-gray-700">{t('home.stat_readers')}</div>
                         </div>
                         <div className="transform hover:scale-105 transition-transform duration-200">
                             <div className="text-3xl font-bold text-purple-600 mb-1">1k+</div>
-                            <div className="text-sm font-medium text-gray-700">Books</div>
+                            <div className="text-sm font-medium text-gray-700">{t('home.stat_books')}</div>
                         </div>
                         <div className="transform hover:scale-105 transition-transform duration-200">
                             <div className="text-3xl font-bold text-indigo-600 mb-1">4.8</div>
-                            <div className="text-sm font-medium text-gray-700">Rating</div>
+                            <div className="text-sm font-medium text-gray-700">{t('login.rating') || "Rating"}</div>
                         </div>
                     </div>
 
@@ -337,8 +339,8 @@ const Login = () => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">10,000+ Books</h3>
-                                    <p className="text-blue-200/80">Digital and physical collection</p>
+                                    <h3 className="text-lg font-semibold text-white mb-2">10,000+ {t('home.stat_books')}</h3>
+                                    <p className="text-blue-200/80">{t('login.right_subtitle')}</p>
                                 </div>
                             </div>
                         </div>

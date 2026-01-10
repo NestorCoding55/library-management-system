@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
 
 const StarRating = ({ rating, onRate, editable = false }) => {
+    const { t } = useTranslation();
     const [hover, setHover] = useState(null);
 
     return (
@@ -19,7 +21,7 @@ const StarRating = ({ rating, onRate, editable = false }) => {
                         />
                         <FaStar
                             className="transition-colors duration-200"
-                            color={ratingValue <= (hover || rating) ? "#fbbf24" : "#e5e7eb"} // Gold vs Gray
+                            color={ratingValue <= (hover || rating) ? "#fbbf24" : "#e5e7eb"}
                             size={20}
                             onMouseEnter={() => editable && setHover(ratingValue)}
                             onMouseLeave={() => editable && setHover(null)}
