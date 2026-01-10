@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="Added Dockerfile for Render" />
+    <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="&quot;Update API URL to production&quot;">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/BackendApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/DatabaseInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/config/DatabaseInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -187,6 +193,7 @@
       <workItem from="1767919746523" duration="1195000" />
       <workItem from="1767991850994" duration="12823000" />
       <workItem from="1768007224807" duration="996000" />
+      <workItem from="1768008279444" duration="3174000" />
     </task>
     <task id="LOCAL-00001" summary="setting up backend and frontend">
       <option name="closed" value="true" />
@@ -292,7 +299,31 @@
       <option name="project" value="LOCAL" />
       <updated>1768008100637</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added Dockerfile for Render">
+      <option name="closed" value="true" />
+      <created>1768008503492</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1768008503492</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added Dockerfile for Render">
+      <option name="closed" value="true" />
+      <created>1768008508323</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1768008508323</updated>
+    </task>
+    <task id="LOCAL-00016" summary="&quot;Update API URL to production&quot;">
+      <option name="closed" value="true" />
+      <created>1768010070390</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1768010070390</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -314,6 +345,7 @@
     <MESSAGE value="phase 4 complete" />
     <MESSAGE value="final push" />
     <MESSAGE value="Added Dockerfile for Render" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Dockerfile for Render" />
+    <MESSAGE value="&quot;Update API URL to production&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;Update API URL to production&quot;" />
   </component>
 </project>
