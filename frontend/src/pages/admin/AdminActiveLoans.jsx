@@ -15,7 +15,7 @@ const AdminActiveLoans = () => {
     const fetchLoans = async () => {
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            const response = await axios.get("http://localhost:8080/api/loans/admin/active", {
+            const response = await axios.get("http://library-backend.onrender.com/api/loans/admin/active", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLoans(response.data);

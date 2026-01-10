@@ -15,7 +15,7 @@ const Categories = () => {
         console.log("--- STARTING FETCH ---");
         try {
             setLoading(true);
-            const url = "http://localhost:8080/api/books/categories";
+            const url = "http://https://library-backend.onrender.com/api/books/categories";
 
             console.log("Fetching from:", url);
             const response = await fetch(url);

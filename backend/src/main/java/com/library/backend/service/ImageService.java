@@ -37,7 +37,7 @@ public class ImageService {
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             // 4. Return the URL
-            return "http://localhost:8080/uploads/" + fileName;
+            return "http://library-backend.onrender.com/uploads/" + fileName;
 
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file. Please try again!", ex);

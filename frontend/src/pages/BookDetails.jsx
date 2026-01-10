@@ -75,11 +75,11 @@ const BookDetails = () => {
         const loadAllData = async () => {
             try {
                 // 1. Fetch Book Details
-                const bookRes = await axios.get(`http://localhost:8080/api/books/${id}`);
+                const bookRes = await axios.get(`http://library-backend.onrender.com/api/books/${id}`);
                 setBook(bookRes.data);
 
                 // 2. Fetch Reviews for this book
-                const reviewsRes = await axios.get(`http://localhost:8080/api/reviews/book/${id}`);
+                const reviewsRes = await axios.get(`http://library-backend.onrender.com/api/reviews/book/${id}`);
                 setReviews(reviewsRes.data);
 
                 // 3. IF LOGGED IN: Run User Specific Checks
@@ -90,7 +90,7 @@ const BookDetails = () => {
 
                     // B. Check for ACTIVE rental (server check)
                     try {
-                        const activeRes = await axios.get(`http://localhost:8080/api/loans/check/${id}`, {
+                        const activeRes = await axios.get(`http://library-backend.onrender.com/api/loans/check/${id}`, {
                             headers: { Authorization: `Bearer ${token}` }
                         });
                         setActiveLoan(activeRes.data);
@@ -100,7 +100,7 @@ const BookDetails = () => {
 
                     // C. Check HISTORY (fetch all history and find this book)
                     try {
-                        const historyRes = await axios.get(`http://localhost:8080/api/loans/history`, {
+                        const historyRes = await axios.get(`http://library-backend.onrender.com/api/loans/history`, {
                             headers: { Authorization: `Bearer ${token}` }
                         });
                         const pastRead = historyRes.data.find(loan => loan.book.id === parseInt(id));
@@ -143,7 +143,7 @@ const BookDetails = () => {
             async () => {
                 setRenting(true);
                 try {
-                    await axios.post(`http://localhost:8080/api/loans/rent/${book.id}`, {}, {
+                    await axios.post(`http://library-backend.onrender.com/api/loans/rent/${book.id}`, {}, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
@@ -151,7 +151,7 @@ const BookDetails = () => {
                     setActiveLoan(true); // Update UI immediately
 
                     // Refresh book to update availability if needed
-                    const updatedBook = await axios.get(`http://localhost:8080/api/books/${id}`);
+                    const updatedBook = await axios.get(`http://library-backend.onrender.com/api/books/${id}`);
                     setBook(updatedBook.data);
 
                 } catch (error) {
@@ -179,7 +179,7 @@ const BookDetails = () => {
 
         setSubmittingReview(true);
         try {
-            await axios.post("http://localhost:8080/api/reviews/add", {
+            await axios.post("http://library-backend.onrender.com/api/reviews/add", {
                 bookId: book.id,
                 rating: userRating,
                 comment: userComment
@@ -188,7 +188,7 @@ const BookDetails = () => {
             });
 
             // Reload reviews to show the new one
-            const res = await axios.get(`http://localhost:8080/api/reviews/book/${id}`);
+            const res = await axios.get(`http://library-backend.onrender.com/api/reviews/book/${id}`);
             setReviews(res.data);
             setMyExistingReview(res.data.find(r => r.username === currentUsername));
 

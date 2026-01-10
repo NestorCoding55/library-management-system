@@ -71,14 +71,14 @@ const UserProfile = () => {
             if (!token) { navigate("/login"); return; }
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
-            const userRes = await axios.get("http://localhost:8080/api/users/me", config);
+            const userRes = await axios.get("http://library-backend.onrender.com/api/users/me", config);
             setUser(userRes.data);
             setEditFormData(prev => ({ ...prev, username: userRes.data.username }));
 
-            const loansRes = await axios.get("http://localhost:8080/api/loans/my-books", config);
+            const loansRes = await axios.get("http://library-backend.onrender.com/api/loans/my-books", config);
             setLoanCount(loansRes.data.length);
 
-            const historyRes = await axios.get("http://localhost:8080/api/loans/history", config);
+            const historyRes = await axios.get("http://library-backend.onrender.comF/api/loans/history", config);
             setHistoryCount(historyRes.data.length);
         } catch (error) {
             console.error("Error:", error);
@@ -112,7 +112,7 @@ const UserProfile = () => {
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            const res = await axios.post("http://localhost:8080/api/users/upload-photo", formData, {
+            const res = await axios.post("http://library-backend.onrender.com/api/users/upload-photo", formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data"
@@ -158,7 +158,7 @@ const UserProfile = () => {
 
         setUsernameLoading(true);
         try {
-            const response = await axios.get(`http://localhost:8080/api/users/check-username?username=${encodeURIComponent(username)}`);
+            const response = await axios.get(`http://library-backend.onrender.com/api/users/check-username?username=${encodeURIComponent(username)}`);
 
             if (response.data.available) {
                 setIsUsernameAvailable(true);
@@ -225,7 +225,7 @@ const UserProfile = () => {
                 payload.newPassword = editFormData.newPassword;
             }
 
-            const res = await axios.put("http://localhost:8080/api/users/me", payload, {
+            const res = await axios.put("http://library-backend.onrender.com/api/users/me", payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
