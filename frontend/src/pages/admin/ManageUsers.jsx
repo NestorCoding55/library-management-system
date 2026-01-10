@@ -13,7 +13,7 @@ const ManageUsers = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            const response = await axios.get("http://library-backend.onrender.com/api/admin/users", {
+            const response = await axios.get("https://library-backend.onrender.com/api/admin/users", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUsers(response.data);
@@ -36,7 +36,7 @@ const ManageUsers = () => {
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            await axios.delete(`http://library-backend.onrender.com/api/admin/users/${userId}`, {
+            await axios.delete(`https://library-backend.onrender.com/api/admin/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

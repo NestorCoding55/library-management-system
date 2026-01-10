@@ -50,7 +50,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "http://library-backend.onrender.com", // Your Production URL
+                "https://library-backend.onrender.com", // Your Production URLs
                 "http://localhost:5173"                // Your Local React/Vue URL
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth") // Kept your original path
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") // Kept your original CORS
+// Kept your original CORS
 public class AuthController {
 
     private final AuthenticationService service; // Inject the Service
