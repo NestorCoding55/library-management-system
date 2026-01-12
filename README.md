@@ -50,7 +50,7 @@ To keep my security credentials safe, I do not hardcode passwords. If you want t
 
 ### 1. Cloning the Repo
 Feel free to fork this repository to test it out or suggest improvements.
-Contributions are welcome! Please fork the repository and submit a pull request for review.
+Contributions are welcome!.
 
 ## 📝 License
 This project is open-source and available under the MIT License.
