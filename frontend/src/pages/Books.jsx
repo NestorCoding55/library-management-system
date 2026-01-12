@@ -40,9 +40,9 @@ const Books = () => {
             setLoading(true);
 
             // A. Prepare URLs
-            let booksUrl = "https://library-backend.onrender.com/api/books";
+            let booksUrl = "https://library-backend-y49e.onrender.com/api/books";
             if (categoryFilter) {
-                booksUrl = `https://library-backend.onrender.com/api/books/category?category=${encodeURIComponent(categoryFilter)}`;
+                booksUrl = `https://library-backend-y49e.onrender.com/api/books/category?category=${encodeURIComponent(categoryFilter)}`;
             }
 
             // B. Fetch All Books
@@ -55,7 +55,7 @@ const Books = () => {
                     const config = { headers: { Authorization: `Bearer ${token}` } };
 
                     // 1. Get Active Loans
-                    const loansRes = await axios.get("https://library-backend.onrender.com/api/loans/my-books", config);
+                    const loansRes = await axios.get("https://library-backend-y49e.onrender.com/api/loans/my-books", config);
                     const now = new Date();
                     const activeLoanIds = loansRes.data
                         .filter(loan => new Date(loan.expiryDate) > now)
@@ -63,7 +63,7 @@ const Books = () => {
                     setMyRentedBookIds(new Set(activeLoanIds));
 
                     // 2. Get Reading History
-                    const historyRes = await axios.get("https://library-backend.onrender.com/api/loans/history", config);
+                    const historyRes = await axios.get("https://library-backend-y49e.onrender.com/api/loans/history", config);
                     const historyIds = historyRes.data.map(loan => loan.book.id);
                     setMyReadBookIds(new Set(historyIds));
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://library-backend.onrender.com/auth";
+const API_URL = "https://library-backend-y49e.onrender.com/auth";
 
 const register = (userData) => {
     // Sends { username, email, password } to the backend

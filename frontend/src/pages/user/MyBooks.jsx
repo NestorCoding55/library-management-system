@@ -25,10 +25,10 @@ const MyBooks = () => {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
-            const activeRes = await axios.get("https://library-backend.onrender.com/api/loans/my-books", config);
+            const activeRes = await axios.get("https://library-backend-y49e.onrender.com/api/loans/my-books", config);
             setActiveLoans(activeRes.data);
 
-            const historyRes = await axios.get("https://library-backend.onrender.com/api/loans/history", config);
+            const historyRes = await axios.get("https://library-backend-y49e.onrender.com/api/loans/history", config);
             setHistoryLoans(historyRes.data);
         } catch (err) {
             console.error(err);
@@ -53,7 +53,7 @@ const MyBooks = () => {
         setReturningId(selectedLoan.id);
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            await axios.post(`https://library-backend.onrender.com/api/loans/return/${selectedLoan.id}`, {}, {
+            await axios.post(`https://library-backend-y49e.onrender.com /api/loans/return/${selectedLoan.id}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

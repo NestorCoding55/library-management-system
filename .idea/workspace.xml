@@ -5,7 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0e52057-85ec-4e8c-a42d-58a443b564ce" name="Changes" comment="minor upda">
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/service/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/library/backend/service/ImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/BookDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/BookDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Books.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Books.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Categories.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Categories.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/AdminActiveLoans.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/AdminActiveLoans.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/AdminDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/AdminDashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/ManageBooks.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/ManageBooks.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/ManageUsers.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/admin/ManageUsers.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/user/MyBooks.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/user/MyBooks.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/user/UserProfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/user/UserProfile.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/authService.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/authService.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +154,9 @@
       </method>
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
       <method v="2" />
     </configuration>
   </component>
@@ -192,7 +205,8 @@
       <workItem from="1767919746523" duration="1195000" />
       <workItem from="1767991850994" duration="12823000" />
       <workItem from="1768007224807" duration="996000" />
-      <workItem from="1768008279444" duration="7037000" />
+      <workItem from="1768008279444" duration="7883000" />
+      <workItem from="1768227685720" duration="3903000" />
     </task>
     <task id="LOCAL-00001" summary="setting up backend and frontend">
       <option name="closed" value="true" />
@@ -362,7 +376,31 @@
       <option name="project" value="LOCAL" />
       <updated>1768013983025</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="minor upda">
+      <option name="closed" value="true" />
+      <created>1768015639186</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1768015639186</updated>
+    </task>
+    <task id="LOCAL-00023" summary="minor upda">
+      <option name="closed" value="true" />
+      <created>1768230531699</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1768230531699</updated>
+    </task>
+    <task id="LOCAL-00024" summary="minor upda">
+      <option name="closed" value="true" />
+      <created>1768233067736</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1768233067736</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

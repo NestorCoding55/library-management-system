@@ -23,7 +23,7 @@ const ManageBooks = () => {
     const fetchBooks = async () => {
         try {
             setLoading(true);
-            const response = await axios.get("https://library-backend.onrender.com/api/books");
+            const response = await axios.get("https://library-backend-y49e.onrender.com/api/books");
             setBooks(response.data);
         } catch (error) {
             console.error("Error fetching books:", error);
@@ -48,10 +48,10 @@ const ManageBooks = () => {
 
         try {
             if (isEditing) {
-                await axios.put(`https://library-backend.onrender.com/api/books/${currentBook.id}`, currentBook, { headers });
+                await axios.put(`https://library-backend-y49e.onrender.com/api/books/${currentBook.id}`, currentBook, { headers });
                 alert(t('admin.book_updated', 'Book updated successfully!'));
             } else {
-                await axios.post("https://library-backend.onrender.com/api/books", currentBook, { headers });
+                await axios.post("https://library-backend-y49e.onrender.com", currentBook, { headers });
                 alert(t('admin.book_created', 'Book created successfully!'));
             }
 
@@ -69,7 +69,7 @@ const ManageBooks = () => {
 
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
         try {
-            await axios.delete(`https://library-backend.onrender.com/api/books/${id}`, {
+            await axios.delete(`https://library-backend-y49e.onrender.com/api/books/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBooks(books.filter(book => book.id !== id));
