@@ -13,7 +13,7 @@ const AdminDashboard = () => {
         const fetchStats = async () => {
             try {
                 const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-                const response = await axios.get("https://library-backend-y49e.onrender.com /api/admin/stats", {
+                const response = await axios.get("https://library-backend-y49e.onrender.com/api/admin/stats", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
