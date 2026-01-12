@@ -31,16 +31,27 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/api/books/**").permitAll()
+                        // 1. PUBLIC ENDPOINTS
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()    // Login/Register
+                        .requestMatchers("/uploads/**").permitAll() // Images
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/books/**").permitAll() // <--- FIX: ONLY GET IS PUBLIC
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/reviews/**").permitAll()
+
+                        // 2. ADMIN ONLY ENDPOINTS
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/loans/admin/**").hasAuthority("ADMIN")
+
+                        // Protect specific Book actions (Create, Update, Delete)
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/books/**").hasAuthority("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/books/**").hasAuthority("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/books/**").hasAuthority("ADMIN")
+
+                        // 3. AUTHENTICATED USERS (Everything else)
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider) // Use the injected provider
+                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -54,7 +65,10 @@ public class SecurityConfig {
                 "http://localhost:5173"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type"
+        ));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
